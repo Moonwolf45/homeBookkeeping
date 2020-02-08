@@ -1,0 +1,23 @@
+{
+  "name": "homebookkeeping",
+  "version": "1.0.0",
+  "description": "My api server for home accounting",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "server": "nodemon index"
+  },
+  "keywords": [
+    "api",
+    "server",
+    "angular"
+  ],
+  "author": "Vladislav Myznikov",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
