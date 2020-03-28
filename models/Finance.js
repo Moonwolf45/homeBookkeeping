@@ -11,8 +11,8 @@ const financeSchema = new Schema({
         default: Date.now
     },
     category: {
-        ref: 'categories',
-        type: Schema.Types.ObjectId
+        type: Number,
+        required: true
     },
     type: {
         type: String,

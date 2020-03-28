@@ -1,17 +1,27 @@
-const BearerStrategy = require('passport-http-bearer').Strategy;
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+const keys = require('../config/keys');
+const User = require('../models/User');
+
+const options = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: keys.jwt
+};
 
 module.exports = passport => {
     passport.use(
-        new BearerStrategy(async (token, done) => {
-            const query = Backendless.DataQueryBuilder.create().setProperties('ownerId, email, name').setWhereClause(`token = '${token}'`);
+        new JwtStrategy(options, async (payload, done) => {
+            try {
+                const user = await User.findById(payload.userId).select('email username id');
 
-            await Backendless.Data.of('Users').find(query).then((user) => {
-                console.log(user);
-                done(null, user)
-            }).catch((error) => {
-                console.log(error);
-                done(null, false);
-            })
+                if (user) {
+                    done(null, user);
+                } else {
+                    done(null, false);
+                }
+            } catch (e) {
+                console.log(e);
+            }
         })
     )
 };

@@ -3,8 +3,7 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
-
-const backendLess = require("backendless");
+const mongoose = require("mongoose");
 
 const authRoutes = require('./routes/auth');
 const analyticsRoutes = require('./routes/analytics');
@@ -13,7 +12,15 @@ const financeCalendarRoutes = require('./routes/financeCalendar');
 const keys = require('./config/keys');
 const app = express();
 
-backendLess.initApp(keys.applicationId, keys.apiKey);
+mongoose.connect(keys.mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+}).then(() => {
+    console.log('MongoDB connected');
+}).catch((error) => {
+    console.log(error);
+});
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());

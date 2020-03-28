@@ -5,12 +5,12 @@ module.exports = (res, error) => {
     switch (error.code) {
         case 3003:
             statusCode = 401;
-            message = 'Неверный email или пароль.';
+            message = 'Неверный пароль.';
         break;
 
-        case 3006:
-            statusCode = 401;
-            message = 'Либо email, либо пароль не заполнен.';
+        case 3004:
+            statusCode = 409;
+            message = 'Пользователь с таким email не существует.';
         break;
 
         case 3033:
@@ -18,28 +18,12 @@ module.exports = (res, error) => {
             message = 'Пользователь с таким email уже существует.';
         break;
 
-        case 3036:
-            statusCode = 401;
-            message = 'Аккаунт заблокирован из-за большого количества неудачных входов.';
-        break;
-
-        case 3040:
-            statusCode = 409;
-            message = 'Неправильный формат email';
-        break;
-
-        case 3091:
-            statusCode = 409;
-            message = 'Время сессии закончилось. Пожалуйста авторизуйтесь заного.';
-        break;
-
-        case 8023:
-            statusCode = 409;
-            message = 'Пароль должен быть больше 6 символов';
-        break;
-
         default:
-            message = error.message;
+            if (error.message !== '') {
+                message = error.message;
+            } else {
+                message = 'Произошла неизвестная ошибка.';
+            }
         break;
     }
 

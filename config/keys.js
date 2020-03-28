@@ -1,4 +1,4 @@
 module.exports = {
-    applicationId: 'DC0FCAD8-D08C-FA71-FFE1-396EFEED5800',
-    apiKey: '252C48C1-D9AA-4826-890B-ECE33B9D95F7',
+    mongoURI: 'mongodb://homeBookkeeping:g5Fxd38BYg@ds215739.mlab.com:15739/homebookkeeping',
+    jwt: 'Qn}b|g9v{e'
 };
