@@ -22,6 +22,10 @@ const financeSchema = new Schema({
         type: Number,
         required: true
     },
+    user: {
+        ref: 'userId',
+        type: Schema.Types.ObjectId
+    }
 });
 
 module.exports = mongoose.model('finances', financeSchema);
