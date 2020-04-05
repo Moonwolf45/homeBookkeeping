@@ -1,0 +1,21 @@
+<div class="card">
+  <div class="card-header bordered">
+    <div class="header-block">
+      <h3 class="title">Добавить категорию</h3>
+    </div>
+  </div>
+  <div class="card-block">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="input-field">
+        <label for="category-name">Введите название</label>
+        <input type="text" id="category-name" formControlName="title" [ngClass]="{ 'invalid': form.get('title').invalid
+          && form.get('title').touched }">
+        <span class="helper-text red-text" *ngIf="form.get('title').invalid && form.get('title').touched">
+          <span *ngIf="form.get('title').errors['required']">Название не должен быть пустым</span>
+        </span>
+      </div>
+
+      <button type="submit" class="modal-action btn waves-effect" [disabled]="form.invalid || form.disabled">Добавить</button>
+    </form>
+  </div>
+</div>

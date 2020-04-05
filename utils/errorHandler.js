@@ -13,9 +13,19 @@ module.exports = (res, error) => {
             message = 'Пользователь с таким email не существует.';
         break;
 
+        case 3005:
+            statusCode = 404;
+            message = 'Пользователь не найден.';
+        break;
+
         case 3033:
             statusCode = 409;
             message = 'Пользователь с таким email уже существует.';
+        break;
+
+        case 3051:
+            statusCode = 406;
+            message = 'Ваш остаток меньше чем ваш расход, вы не можете уйти в минус.';
         break;
 
         default:

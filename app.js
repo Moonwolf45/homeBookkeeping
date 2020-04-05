@@ -6,9 +6,10 @@ const morgan = require('morgan');
 const mongoose = require("mongoose");
 
 const authRoutes = require('./routes/auth');
+const usersRoutes = require('./routes/users');
 const analyticsRoutes = require('./routes/analytics');
-const financesRoutes = require('./routes/finances');
-const financeCalendarRoutes = require('./routes/financeCalendar');
+const eventsRoutes = require('./routes/events');
+const categoriesRoutes = require('./routes/categories');
 const keys = require('./config/keys');
 const app = express();
 
@@ -32,8 +33,9 @@ app.use(morgan('dev'));
 app.use(cors());
 
 app.use('/api', authRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/events', eventsRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/finances', financesRoutes);
-app.use('/api/financeCalendar', financeCalendarRoutes);
 
 module.exports = app;

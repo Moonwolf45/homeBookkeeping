@@ -15,6 +15,21 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    balanceRUB: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    balanceUSD: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    balanceEUR: {
+        type: Number,
+        required: false,
+        default: 0
+    },
 });
 
 module.exports = mongoose.model('users', userSchema);

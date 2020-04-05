@@ -1,0 +1,76 @@
+<div class="dashboard">
+  <div class="title-block">
+    <h3 class="title left">
+      Страница записей <span class="sparkline bar"></span>
+    </h3>
+  </div>
+
+  <div class="row center" *ngIf="!isLoaded">
+    <div class="preloader-wrapper big active">
+      <div class="spinner-layer spinner-blue">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer spinner-red">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer spinner-yellow">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer spinner-green">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="isLoaded">
+    <div class="row">
+      <div class="col s12 m6">
+        <app-add-event [categories]="categories"></app-add-event>
+      </div>
+
+      <div class="col s12 m6">
+        <app-add-category (newCategory)="newCategoryAdd($event)"></app-add-category>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m6">
+        <app-edit-category (categoryEdit)="onCategoryUpdate($event)" [categories]="categories"></app-edit-category>
+      </div>
+    </div>
+  </div>
+</div>
+

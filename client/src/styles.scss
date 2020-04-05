@@ -1,6 +1,34 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~materialize-css/dist/css/materialize.min.css";
 
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/materialicons/v50/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+body,
+html {
+  color: #4f5f6f;
+}
+
 p {
   margin-top: 0;
   margin-bottom: 1rem;
@@ -34,6 +62,29 @@ a:not(.btn):hover {
   color: #2c96ad;
 }
 
+.title {
+  font-size: 1.45rem;
+  line-height: 1.1;
+  font-weight: 600;
+  margin: 0;
+}
+
+.label-danger,
+.label-success {
+  color: #fff;
+  border-radius: 5px;
+  font-weight: 600;
+  padding: 5px;
+}
+
+.label-danger {
+  background: #ff0000;
+}
+
+.label-success {
+  background: #5cb85c;
+}
+
 .auth {
   display: flex;
   position: fixed;
@@ -53,55 +104,55 @@ a:not(.btn):hover {
   width: 100%;
 }
 
+.logo {
+  display: inline-block;
+  width: 45px;
+  height: 25px;
+  vertical-align: middle;
+  margin-right: 5px;
+  position: relative;
+
+  .l {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background-color: #52bcd3;
+    position: absolute;
+  }
+
+  .l.l1 {
+    bottom: 0;
+    left: 0;
+  }
+
+  .l.l2 {
+    width: 7px;
+    height: 7px;
+    bottom: 13px;
+    left: 10px;
+  }
+
+  .l.l3 {
+    width: 7px;
+    height: 7px;
+    bottom: 4px;
+    left: 17px;
+  }
+
+  .l.l4 {
+    bottom: 13px;
+    left: 25px;
+  }
+
+  .l.l5 {
+    bottom: 0;
+    left: 34px;
+  }
+}
+
 .auth-header {
   text-align: center;
   border-bottom: 1px solid #52bcd3;
-
-  .logo {
-    display: inline-block;
-    width: 45px;
-    height: 25px;
-    vertical-align: middle;
-    margin-right: 5px;
-    position: relative;
-
-    .l {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      background-color: #52bcd3;
-      position: absolute;
-    }
-
-    .l.l1 {
-      bottom: 0;
-      left: 0;
-    }
-
-    .l.l2 {
-      width: 7px;
-      height: 7px;
-      bottom: 13px;
-      left: 10px;
-    }
-
-    .l.l3 {
-      width: 7px;
-      height: 7px;
-      bottom: 4px;
-      left: 17px;
-    }
-
-    .l.l4 {
-      bottom: 13px;
-      left: 25px;
-    }
-
-    .l.l5 {
-      bottom: 0;
-      left: 34px;
-    }
-  }
 
   .auth-title {
     color: #97a4b1;
@@ -116,8 +167,308 @@ a:not(.btn):hover {
 .card {
   margin: 0;
 
+  .title {
+    font-size: 1.1rem;
+    color: #4f5f6f;
+  }
+
   .auth-content {
     padding: 30px 50px;
     min-height: 260px;
+  }
+
+  .card-header {
+    background-image: none;
+    background-color: #fff;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    padding: 0;
+    border-radius: 0;
+    min-height: 50px;
+    border: none;
+
+    &.bordered {
+      border-bottom: 1px solid #d7dde4;
+    }
+
+    .title {
+      color: #4f5f6f;
+      display: -webkit-inline-flex;
+      display: -ms-inline-flexbox;
+      display: inline-flex;
+    }
+
+    .header-block {
+      padding: .5rem 15px;
+    }
+
+    @media (min-width: 1200px) {
+      .header-block {
+        padding: .5rem 20px;
+      }
+    }
+  }
+}
+
+.sidenav {
+  background-color: #3a4651;
+
+  .brand {
+    color: #fff;
+    text-align: left;
+    padding-left: 25px;
+    line-height: 70px;
+    font-size: 16px;
+  }
+
+  li.bold.active > a,
+  li.bold.active > a i,
+  li.bold.active > a:hover {
+    background-color: #52bcd3!important;
+    color: #fff!important;
+  }
+
+  .bold a {
+    color: rgba(255, 255, 255, .5);
+    text-decoration: none;
+
+    i {
+      color: rgba(255, 255, 255, .5)!important;
+    }
+
+    &:hover {
+      color: #fff;
+      background-color: #2d363f;
+
+      i {
+        color: #fff!important;
+        background-color: #2d363f;
+      }
+    }
+  }
+
+  .bold.last {
+    position: absolute;
+    bottom: 62px;
+    width: 100%;
+  }
+}
+
+.a-sidenav {
+  transform: translateX(0)!important;
+  width: 250px!important;
+}
+
+main, footer {
+  margin-left: 250px;
+}
+
+.row-sm [class^=col] {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.stat {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  margin-right: 10px;
+
+  .value {
+    font-size: 20px;
+    line-height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+  }
+}
+
+.content {
+  min-height: 100vh;
+  background-color: #f0f3f6;
+  box-shadow: 0 0 3px #ccc;
+  -webkit-transition: left .3s ease;
+  transition: left .3s ease;
+
+  .header {
+    background-color: #d7dde4;
+
+    .nav-wrapper {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      -ms-flex-align: center;
+      align-items: center;
+    }
+
+    .header-block {
+      margin-right: 50px;
+    }
+
+    .header-block-search {
+      margin-right: auto;
+      padding-left: 30px;
+      color: #4f5f6f;
+    }
+
+    .header-block-nav {
+      margin-left: auto;
+      padding: 0 15px;
+      font-weight: 700;
+      color: #4f5f6f;
+    }
+
+    @media (min-width: 1200px) {
+      .header-block-search {
+        padding-left: 50px;
+      }
+    }
+
+    .dropdown-trigger {
+      color: #4f5f6f;
+
+      &:hover {
+        color: #52bcd3;
+      }
+    }
+  }
+
+  .wrapper {
+    padding: 0 30px;
+
+    .dashboard {
+      padding: 55px 50px 100px 20px;
+
+      .stats {
+        .card-block {
+          padding-bottom: 0;
+        }
+
+        .stat {
+          vertical-align: middle;
+
+          .value {
+            font-size: 1.3vw;
+          }
+        }
+
+        .stat-col {
+          margin-bottom: 20px;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        .stat-icon {
+          color: #52bcd3;
+          display: inline-block;
+          font-size: 26px;
+          font-weight: 700;
+          text-align: center;
+          vertical-align: middle;
+          width: 50px;
+        }
+
+        .stat-progress {
+          height: 2px;
+          margin: 5px 0;
+        }
+      }
+
+      .title-block {
+        overflow: hidden;
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #d7dde4;
+
+        .title {
+          color: #4f5f6f;
+        }
+      }
+
+      .card {
+        .card-title-block,
+        .title-block {
+          padding-bottom: 0;
+          margin-bottom: 20px;
+          border: none;
+        }
+      }
+
+      .card-block {
+        padding: 15px;
+      }
+
+      @media (min-width: 1200px) {
+        .card-block {
+          padding: 20px;
+        }
+      }
+
+      .table {
+        td,
+        th {
+          padding: .75rem;
+          line-height: 1.5;
+          vertical-align: top;
+          border-top: 1px solid #eceeef;
+        }
+
+        thead {
+          th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #eceeef;
+          }
+        }
+      }
+    }
+  }
+}
+
+.chart {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.form-inline {
+  display: flex;
+  flex-flow: row nowrap;
+  margin: 0 20px;
+
+  .input-field {
+    margin-right: 10px;
+  }
+}
+
+.flex-left {
+  margin-right: auto;
+}
+
+.flex-right {
+  margin-left: auto;
+}
+
+@media only screen and (min-width: 995px) {
+  .ngx-charts {
+    width: 550px!important;
+  }
+
+  .chart-legend > div {
+    width: 165px!important;
   }
 }

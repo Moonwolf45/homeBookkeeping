@@ -1,0 +1,68 @@
+<div class="dashboard">
+  <div class="title-block">
+    <h3 class="title left">
+      Странциа счета <span class="sparkline bar"></span>
+    </h3>
+    <div class="right">
+      <button class="btn-sm btn btn-primary-outline" (click)="onRefresh()">
+        <i class="material-icons">refresh</i>
+      </button>
+    </div>
+  </div>
+
+  <div class="row text-xs-center" *ngIf="!isLoaded">
+    <div class="preloader-wrapper big active">
+      <div class="spinner-layer spinner-blue">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer spinner-red">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer spinner-yellow">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer spinner-green">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" *ngIf="isLoaded">
+    <app-bill-card [bill]="bill"></app-bill-card>
+    <app-currency-card [currency]="currency"></app-currency-card>
+  </div>
+</div>

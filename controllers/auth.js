@@ -14,12 +14,15 @@ module.exports.login = async function (req, res) {
                 username: candidate.username,
                 email: candidate.email,
                 userId: candidate._id,
+                balanceRUB: candidate.balanceRUB,
+                balanceUSD: candidate.balanceUSD,
+                balanceEUR: candidate.balanceEUR
             }, keys.jwt, {
                 expiresIn: 604800
             });
 
             res.status(200).json({
-                token: `Bearer ${token}`
+                token: `Bearer ${token}`,
             });
         } else {
             message(res, {code: 3003});

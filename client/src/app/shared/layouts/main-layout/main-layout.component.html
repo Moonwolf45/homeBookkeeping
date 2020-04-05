@@ -1,1 +1,56 @@
-<p>main-layout works!</p>
+<ul class="sidenav sidenav-fixed a-sidenav">
+  <li class="brand">
+    <div class="logo">
+      <span class="l l1"></span>
+      <span class="l l2"></span>
+      <span class="l l3"></span>
+      <span class="l l4"></span>
+      <span class="l l5"></span>
+    </div>
+    Бухгалтерия
+  </li>
+
+  <li class="bold" routerLinkActive="active">
+    <a [routerLink]="['/overview']" class="waves-effect waves-orange">
+      <i class="material-icons">wb_incandescent</i> Счёт
+    </a>
+  </li>
+  <li class="bold" routerLinkActive="active">
+    <a [routerLink]="['/history']" class="waves-effect waves-orange">
+      <i class="material-icons">history</i> История
+    </a>
+  </li>
+  <li class="bold" routerLinkActive="active">
+    <a [routerLink]="['/planning']" class="waves-effect waves-orange">
+      <i class="material-icons">business_center</i> Планирование
+    </a>
+  </li>
+  <li class="bold" routerLinkActive="active">
+    <a [routerLink]="['/records']" class="waves-effect waves-orange">
+      <i class="material-icons">add_box</i> Запись
+    </a>
+  </li>
+  <li class="bold last">
+    <a (click)="onExit()" class="waves-effect waves-orange">
+      <i class="material-icons">exit_to_app</i> Выйти
+    </a>
+  </li>
+
+</ul>
+
+<main class="content">
+  <nav class="header">
+    <div class="nav-wrapper">
+      <div class="header-block header-block-search">
+        {{ date | date:'dd.MM.yyyy HH:mm' }}
+      </div>
+      <div class="header-block header-block-nav">
+        Здравствуйте, {{ username }}
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrapper">
+    <router-outlet></router-outlet>
+  </div>
+</main>
