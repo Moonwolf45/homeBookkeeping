@@ -1,0 +1,41 @@
+<div id="filter-modal" class="modal open">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="closeFilter()">
+          <span>×</span>
+        </button>
+        <h4 class="modal-title">Фильтр</h4>
+      </div>
+      <div class="modal-body">
+        <div class="input-field">
+          <select id="period" [(ngModel)]="selectedPeriod">
+            <option *ngFor="let time of timePeriods" [value]="time.type">{{ time.label }}</option>
+          </select>
+          <label for="period">Выберите период</label>
+        </div>
+
+        <label>Выберите тип события</label>
+        <p *ngFor="let type of types">
+          <label>
+            <input type="checkbox" class="checkbox" [value]="type.type" (change)="handleChangeType($event.target)">
+            <span>{{ type.label }}</span>
+          </label>
+        </p>
+
+        <label>Выберите категории</label>
+        <p *ngFor="let category of categories">
+          <label>
+            <input type="checkbox" class="checkbox" [value]="category._id" (change)="handleChangeCategory($event.target)">
+            <span>{{ category.title }}</span>
+          </label>
+        </p>
+
+        <div class="modal-footer">
+          <button type="button" class="btn waves-effect white black-text" (click)="closeFilter()">Отмена</button>
+          <button type="button" class="btn waves-effect btn-primary" (click)="applyFilter()">Применить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
