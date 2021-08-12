@@ -1,0 +1,62 @@
+.logo {
+  display: inline-block;
+  width: 45px;
+  height: 25px;
+  vertical-align: middle;
+  margin-right: 5px;
+  position: relative;
+
+  .l {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background-color: #52bcd3;
+    position: absolute;
+  }
+
+  .l.l1 {
+    bottom: 0;
+    left: 0;
+  }
+
+  .l.l2 {
+    width: 7px;
+    height: 7px;
+    bottom: 13px;
+    left: 10px;
+  }
+
+  .l.l3 {
+    width: 7px;
+    height: 7px;
+    bottom: 4px;
+    left: 17px;
+  }
+
+  .l.l4 {
+    bottom: 13px;
+    left: 25px;
+  }
+
+  .l.l5 {
+    bottom: 0;
+    left: 34px;
+  }
+}
+
+.text-muted {
+  color: #9ba8b5;
+
+  a {
+    transition: color 0.13s;
+    text-decoration: none;
+    color: #52bcd3;
+  }
+}
+
+.title-block {
+  overflow: hidden;
+  padding-bottom: 15px;
+  margin: 0 0 30px 0;
+  border-bottom: 1px solid #d7dde4;
+}

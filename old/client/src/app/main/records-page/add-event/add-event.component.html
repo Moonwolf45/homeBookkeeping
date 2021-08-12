@@ -1,0 +1,60 @@
+<div class="card">
+  <div class="card-header bordered">
+    <div class="header-block">
+      <h3 class="title">Добавить событие</h3>
+    </div>
+  </div>
+  <div class="card-block">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div>
+        <label for="get-category">Выберите категорию</label>
+        <select class="browser-default" id="get-category" formControlName="category_id">
+          <option selected disabled>Выберите категорию</option>
+          <option *ngFor="let category of categories" [value]="category._id">{{ category.title }}</option>
+        </select>
+        <span class="helper-text red-text" *ngIf="form.get('category_id').invalid && form.get('category_id').touched">
+          <span *ngIf="form.get('category_id').errors['required']">Категория не может быть пустой</span>
+        </span>
+        <span class="helper-text red-text" *ngIf="error.amount">
+          <span>{{ error.text }}</span>
+        </span>
+      </div>
+
+      <div class="input-field">
+        <select id="get-currency" formControlName="currency">
+          <option selected disabled>Выберите валюту</option>
+          <option *ngFor="let currency of currencies" [value]="currency.type">{{ currency.label }}</option>
+        </select>
+        <label for="get-category">Выберите валюту</label>
+        <span class="helper-text red-text" *ngIf="form.get('currency').invalid && form.get('currency').touched">
+          <span *ngIf="form.get('currency').errors['required']">Валюта не может быть пустой</span>
+        </span>
+      </div>
+
+      <div class="input-field">
+        <p><label>Выберите тип</label></p>
+        <p *ngFor="let t of types">
+          <label>
+            <input class="radio" type="radio" formControlName="type" [value]="t.type">
+            <span>{{ t.label }}</span>
+          </label>
+        </p>
+      </div>
+
+      <div class="input-field">
+        <label for="amount">Введите сумму</label>
+        <input id="amount" type="number" formControlName="amount" min="1">
+        <span class="helper-text red-text" *ngIf="form.get('amount').invalid && form.get('amount').touched">
+          <span *ngIf="form.get('amount').errors['required']">Сумма не может быть пустой</span>
+        </span>
+      </div>
+
+      <div class="input-field">
+        <label for="textarea-description">Введите описание</label>
+        <textarea id="textarea-description" class="materialize-textarea" formControlName="description"></textarea>
+      </div>
+
+      <button type="submit" class="modal-action btn waves-effect" [disabled]="form.invalid || form.disabled">Добавить</button>
+    </form>
+  </div>
+</div>
