@@ -11,7 +11,8 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property int $user_id
  * @property int $category_id
- * @property int $currency
+ * @property int $bill_id
+ * @property string $currency
  * @property int $type
  * @property float $amount
  * @property int $date
@@ -22,18 +23,8 @@ use yii\db\ActiveRecord;
  */
 class Event extends ActiveRecord {
 
-    const CURRENCY_RUB = 1;
-    const CURRENCY_USD = 2;
-    const CURRENCY_EUR = 3;
-
     const TYPE_INCOME = 1;
     const TYPE_OUTCOME = 2;
-
-    const CURRENCY_ARRAY = [
-        'rub' => self::CURRENCY_RUB,
-        'usd' => self::CURRENCY_USD,
-        'eur' => self::CURRENCY_EUR
-    ];
 
     const TYPE_ARRAY = [
         'income' => self::TYPE_INCOME,
@@ -52,10 +43,13 @@ class Event extends ActiveRecord {
      */
     public function rules(): array {
         return [
-            [['user_id', 'category_id', 'amount', 'date'], 'required'],
-            [['user_id', 'category_id', 'currency', 'type', 'date'], 'integer'],
+            [['user_id', 'category_id', 'bill_id', 'amount', 'date'], 'required'],
+            [['user_id', 'category_id', 'bill_id', 'type', 'date'], 'integer'],
             [['amount'], 'number'],
-            [['description'], 'safe'],
+            [['description', 'currency'], 'string'],
+            [['currency'], 'default', 'value' => Currency::DEFAULT_CURRENCY['RUB']['CharCode']],
+            [['bill_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bill::class,
+                'targetAttribute' => ['bill_id' => 'id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class,
                 'targetAttribute' => ['category_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class,
@@ -71,12 +65,22 @@ class Event extends ActiveRecord {
             'id' => 'ID',
             'user_id' => 'User ID',
             'category_id' => 'Category ID',
+            'bill_id' => 'Bill ID',
             'currency' => 'Currency',
             'type' => 'Type',
             'amount' => 'Amount',
             'date' => 'Date',
             'description' => 'Description',
         ];
+    }
+
+    /**
+     * Gets query for [[Bill]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBill(): \yii\db\ActiveQuery {
+        return $this->hasOne(Bill::class, ['id' => 'bill_id']);
     }
 
     /**

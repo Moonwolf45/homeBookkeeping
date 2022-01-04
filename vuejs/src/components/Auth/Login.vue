@@ -5,11 +5,11 @@
     <v-card-text>
       <v-form ref="form" v-model="valid" lazy-validation>
         <v-text-field prepend-icon="contact_mail" :label="$t('form.email')" type="email" :rules="emailRules"
-                      v-model="email" required/>
+                      v-model="email" required />
         <v-text-field prepend-icon="lock" :label="$t('form.password')" :type="showPassword ? 'text' : 'password'"
                       :counter="6" :rules="passwordRules" v-model="password"
                       @click:append="showPassword = !showPassword" required
-                      :append-icon="showPassword ? 'visibility' : 'visibility_off'"/>
+                      :append-icon="showPassword ? 'visibility' : 'visibility_off'" />
       </v-form>
     </v-card-text>
     <v-card-actions>
@@ -22,6 +22,9 @@
     <div class="form-group">
       <p class="text-muted text-center">
         {{ $t('auth.noAccount') }} <router-link :to="'/auth/registration'">{{ $t('auth.registerNow') }}</router-link>
+      </p>
+      <p class="text-muted text-center">
+        {{ $t('auth.forgotPassword') }} <router-link :to="'/auth/forgot-password'">{{ $t('auth.change') }}</router-link>
       </p>
     </div>
   </div>

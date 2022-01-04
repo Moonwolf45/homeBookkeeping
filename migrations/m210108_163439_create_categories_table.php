@@ -28,8 +28,8 @@ class m210108_163439_create_categories_table extends Migration {
      * {@inheritdoc}
      */
     public function safeDown () {
-        $this->dropIndex('idx-categories-user_id', '{{%categories}}');
         $this->dropForeignKey('fk-categories-user_id', '{{%categories}}');
+        $this->dropIndex('idx-categories-user_id', '{{%categories}}');
 
         $this->dropTable('{{%categories}}');
     }

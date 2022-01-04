@@ -4,7 +4,7 @@ import { i18n } from '@/i18n/i18n';
 
 class Category {
   constructor (user_id, title, color, id = null) {
-    this.id = parseInt(id);
+    this.id = id !== null ? parseInt(id) : null;
     this.user_id = parseInt(user_id);
     this.title = title;
     this.color = color;
@@ -67,10 +67,10 @@ export default {
       const resultCategories = getters.category
 
       try {
-        const category = await axios.post(environment.url + '/api/v1/categories/' + payload)
+        const category = await axios.post(environment.url + '/api/v1/categories', payload)
 
         resultCategories.push(
-          new Category(category.user_id, category.title, category.color, category.id)
+          new Category(category.data.user_id, category.data.title, category.data.color, category.data.id)
         )
 
         resultCategories.sort(function (a, b) {
@@ -106,10 +106,10 @@ export default {
         const editCategory = await axios.patch(environment.url + '/api/v1/categories/' + payload.id, payload)
 
         categories.forEach((element) => {
-          if (element.id === editCategory.id) {
-            element.user_id = editCategory.user_id
-            element.title = editCategory.title
-            element.color = editCategory.color
+          if (element.id === editCategory.data.id) {
+            element.user_id = editCategory.data.user_id
+            element.title = editCategory.data.title
+            element.color = editCategory.data.color
           }
         });
 

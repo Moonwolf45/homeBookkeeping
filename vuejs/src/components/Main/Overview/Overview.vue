@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="title-block">
-      <h3 class="main_title left">
+      <h3 class="main_title">
         {{ $t('overview.name') }}
       </h3>
       <div class="text-right">
@@ -33,12 +33,11 @@ export default {
   data () {
     return {
       loading: true,
-      currencyLoader: true
+      currencyLoader: false
     }
   },
   mounted () {
     this.getProfile()
-    this.getCurrency(true)
   },
   methods: {
     onRefresh () {

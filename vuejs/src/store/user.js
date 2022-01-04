@@ -4,7 +4,7 @@ import { environment } from '@/environments/environment'
 
 class User {
   constructor (username, email, auth_key, status, id = null) {
-    this.id = parseInt(id);
+    this.id = id !== null ? parseInt(id) : null;
     this.username = username;
     this.email = email;
     this.auth_key = auth_key;
@@ -64,11 +64,34 @@ export default {
         const user = await axios.post(environment.url + '/api/v1/users/login', payload)
         commit('setUser', user.data)
         commit('setAccessToken', user.data.access_token)
+
+        await dispatch('getCurrencyUser', user.data.id)
+        await dispatch('getCurrency')
+        await dispatch('getProfile', user.data.id)
+        await dispatch('getCategory', user.data.id)
+        await dispatch('getAllCurrency')
+        commit('setLoading', false)
+      } catch (err) {
         commit('setLoading', false)
 
-        dispatch('getProfile', user.data.id)
-        dispatch('getCurrency')
-        dispatch('getCategory', user.data.id)
+        if (err.response.data) {
+          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
+        } else {
+          console.log(err)
+        }
+
+        throw err
+      }
+    },
+    async forgotPasswordUser ({ commit }, payload) {
+      commit('clearError')
+      commit('setLoading', true)
+
+      try {
+        const user = await axios.post(environment.url + '/api/v1/users/login', payload)
+        commit('setUser', user.data)
+        commit('setAccessToken', user.data.access_token)
+        commit('setLoading', false)
       } catch (err) {
         commit('setLoading', false)
 
@@ -89,9 +112,32 @@ export default {
         commit('setUser', JSON.parse(auth_user))
         commit('setAccessToken', access_token)
 
-        await dispatch('getProfile', JSON.parse(auth_user).id)
+        await dispatch('getCurrencyUser', JSON.parse(auth_user).id)
         await dispatch('getCurrency')
+        await dispatch('getProfile', JSON.parse(auth_user).id)
         await dispatch('getCategory', JSON.parse(auth_user).id)
+        await dispatch('getAllCurrency')
+      }
+    },
+    async isUserEmailExists ({ commit }, payload) {
+      commit('clearError')
+      commit('setLoading', true)
+
+      try {
+        const user = await axios.post(environment.url + '/api/v1/users/user-exists', payload);
+        commit('setLoading', false)
+
+        return user;
+      } catch (err) {
+        commit('setLoading', false)
+
+        if (err.response.data) {
+          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
+        } else {
+          console.log(err)
+        }
+
+        throw err
       }
     },
     logoutUser ({ commit }) {

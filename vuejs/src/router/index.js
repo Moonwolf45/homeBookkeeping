@@ -5,6 +5,7 @@ import AuthGuard from './auth-guard'
 
 import Login from '@/components/Auth/Login';
 import Registration from '@/components/Auth/Registration';
+import ForgotPassword from '@/components/Auth/ForgotPassword';
 
 import Overview from '@/components/Main/Overview/Overview';
 import History from '@/components/Main/History/History';
@@ -38,6 +39,14 @@ export default new Router({
             component: Registration,
             meta: {
                 title: 'Registration',
+                layout: 'auth-layout'
+            }
+        }, {
+            path: '/auth/forgot-password',
+            name: 'Forgot password',
+            component: ForgotPassword,
+            meta: {
+                title: 'Forgot password',
                 layout: 'auth-layout'
             }
         }, {

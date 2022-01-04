@@ -33,7 +33,7 @@ class AllApiController extends ActiveController {
             'formats' => [
                 'application/json' => Response::FORMAT_JSON,
             ],
-            'languages' => ['ru-RU', 'en-US']
+            'languages' => ['ru_RU', 'en_US']
         ];
 
         if (YII_ENV_DEV) {

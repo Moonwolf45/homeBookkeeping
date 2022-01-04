@@ -6,6 +6,7 @@ import user from './user'
 import profile from './profile'
 import category from './category'
 import event from './event'
+import currency from './currency'
 
 Vue.use(Vuex)
 
@@ -15,6 +16,7 @@ export default new Vuex.Store({
     user,
     profile,
     category,
-    event
+    event,
+    currency
   }
 })

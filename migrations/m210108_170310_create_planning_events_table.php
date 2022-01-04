@@ -38,11 +38,11 @@ class m210108_170310_create_planning_events_table extends Migration {
      * {@inheritdoc}
      */
     public function safeDown () {
-        $this->dropIndex('idx-planning_events-category_id', '{{%planning_events}}');
         $this->dropForeignKey('fk-planning_events-category_id', '{{%planning_events}}');
+        $this->dropIndex('idx-planning_events-category_id', '{{%planning_events}}');
 
-        $this->dropIndex('idx-planning_events-user_id', '{{%planning_events}}');
         $this->dropForeignKey('fk-planning_events-user_id', '{{%planning_events}}');
+        $this->dropIndex('idx-planning_events-user_id', '{{%planning_events}}');
 
         $this->dropTable('{{%planning_events}}');
     }

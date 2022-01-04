@@ -52,8 +52,11 @@ class User extends ActiveRecord implements IdentityInterface {
     public function rules(): array {
         return [
             [['email', 'password_reset_token'], 'unique'],
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            [['email', 'password_hash'], 'required'],
+            [['email', 'password_hash', 'username'], 'filter', 'filter' => 'trim'],
+            [['email'], 'email'],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
         ];
     }
 
@@ -147,19 +150,20 @@ class User extends ActiveRecord implements IdentityInterface {
     /**
      * Generates authentication key
      *
-     * @return string
+     * @return void
+     *
      * @throws \yii\base\Exception
      */
-    public function generateAuthKey() {
+    public function generateAuthKey(): void {
         $this->auth_key = Yii::$app->security->generateRandomString();
     }
 
     /**
      * Generates access token
      *
-     * @return string
+     * @return void
      */
-    public function generateAccessToken() {
+    public function generateAccessToken(): void {
         $this->access_token = Yii::$app->request->getCsrfToken();
     }
 
@@ -175,31 +179,33 @@ class User extends ActiveRecord implements IdentityInterface {
     }
 
     /**
-     * Generates password hash from password an sets in the model
+     * Generates password hash from password and sets in the model
      *
      * @param $password
      *
-     * @return string
+     * @return void
+     *
      * @throws \yii\base\Exception
      */
-    public function setPassword($password): string {
-        return $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    public function setPassword($password): void {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     /**
      * Generates new password reset token
      *
-     * @return string
+     * @return void
+     *
      * @throws \yii\base\Exception
      */
-    public function generatePasswordResetToken(): string {
+    public function generatePasswordResetToken(): void {
         $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
     }
 
     /**
      * Remove password reset token
      */
-    public function removePasswordResetToken() {
+    public function removePasswordResetToken(): void {
         $this->password_reset_token = null;
     }
 
@@ -209,7 +215,7 @@ class User extends ActiveRecord implements IdentityInterface {
      * @return \yii\db\ActiveQuery
      */
     public function getProfile(): \yii\db\ActiveQuery {
-        return $this->hasOne(Profile::class, ['user_id' => 'id']);
+        return $this->hasOne(Bill::class, ['user_id' => 'id']);
     }
 
     /**
@@ -222,5 +228,27 @@ class User extends ActiveRecord implements IdentityInterface {
             $fields['updated_at']);
 
         return $fields;
+    }
+
+    /**
+     * @param int $length
+     *
+     * @return string
+     */
+    public static function generatePassword(int $length = 6): string {
+        $password = '';
+        $arr = [
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
+        ];
+
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $arr[rand(0, count($arr) - 1)];
+        }
+
+        return $password;
     }
 }

@@ -9,14 +9,14 @@ $config = [
     'name' => 'My Api HomeBookkeeping server',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
-    'language' => 'ru-RU',
+    'language' => 'ru_RU',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm' => '@vendor/npm-asset',
         '@api' => '@app/api'
     ],
     'on beforeRequest' => function ($event) {
-        \yii\helpers\Inflector::$transliterator = 'Russian-Latin/BGN; Any-Latin; Latin-ASCII; NFD; [:Nonspacing Mark:] Remove; NFC;';
+        \yii\helpers\Inflector::$transliterator = 'Russian-Latin/BGN; Any-Latin; Latin-ASCII; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove; Lower();';
     },
     'modules' => [
         'api' => [
@@ -32,6 +32,15 @@ $config = [
         ]
     ],
     'components' => [
+        'i18n' => [
+            'translations' => [
+                'app*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@app/messages',
+                    'sourceLanguage' => 'en_US',
+                ],
+            ],
+        ],
         'formatter' => [
             'class' => 'yii\i18n\Formatter',
             'locale' => 'ru_RU',
@@ -57,7 +66,14 @@ $config = [
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
-            'useFileTransport' => true,
+            'useFileTransport' => false,
+            'viewPath' => '@app/mail',
+            'htmlLayout' => 'layouts/main-html',
+            'textLayout' => 'layouts/main-text',
+            'messageConfig' => [
+                'charset' => 'UTF-8',
+                'from' => ['info@bookkeeping.ru' => 'Home Bookkeeping'],
+            ],
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -81,7 +97,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['api/v1/user', 'api/v1/profile', 'api/v1/category',
-                    'api/v1/event'],
+                    'api/v1/event', 'api/v1/currency'],
                     'patterns' => [
                         'PUT,PATCH {id}' => 'update',
                         'DELETE {id}' => 'delete',
@@ -96,7 +112,10 @@ $config = [
                     'extraPatterns' => [
                         'POST registration' => 'registration',
                         'POST login' => 'login',
+                        'POST forgot-password' => 'forgot-password',
                         'GET currency' => 'currency',
+                        'POST user-exists' => 'user-exists',
+                        'GET all-currency' => 'all-currency',
                     ]
                 ],
 

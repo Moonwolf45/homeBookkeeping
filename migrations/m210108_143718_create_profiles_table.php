@@ -29,8 +29,8 @@ class m210108_143718_create_profiles_table extends Migration {
      * {@inheritdoc}
      */
     public function safeDown () {
-        $this->dropIndex('idx-profiles-user_id', '{{%profiles}}');
         $this->dropForeignKey('fk-profiles-user_id', '{{%profiles}}');
+        $this->dropIndex('idx-profiles-user_id', '{{%profiles}}');
 
         $this->dropTable('{{%profiles}}');
     }

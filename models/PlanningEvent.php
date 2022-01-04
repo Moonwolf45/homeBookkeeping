@@ -11,7 +11,8 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property int $user_id
  * @property int $category_id
- * @property int $currency
+ * @property int $bill_id
+ * @property string $currency
  * @property int $type
  * @property float $amount
  * @property int $date
@@ -42,10 +43,15 @@ class PlanningEvent extends ActiveRecord {
      */
     public function rules(): array {
         return [
-            [['user_id', 'category_id', 'amount', 'date'], 'required'],
-            [['user_id', 'category_id', 'currency', 'type', 'date', 'view', 'status'], 'integer'],
+            [['user_id', 'category_id', 'bill_id', 'amount', 'date'], 'required'],
+            [['user_id', 'category_id', 'bill_id', 'type', 'date', 'view', 'status'], 'integer'],
             [['amount'], 'number'],
-            [['description'], 'string'],
+            [['description', 'currency'], 'string'],
+            [['currency'], 'default', 'value' => Currency::DEFAULT_CURRENCY['RUB']['CharCode']],
+            [['view'], 'default', 'value' => self::VIEW_ON],
+            [['status'], 'default', 'value' => self::STATUS_ON],
+            [['bill_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bill::class,
+                'targetAttribute' => ['bill_id' => 'id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class,
                 'targetAttribute' => ['category_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class,
@@ -61,6 +67,7 @@ class PlanningEvent extends ActiveRecord {
             'id' => 'ID',
             'user_id' => 'User ID',
             'category_id' => 'Category ID',
+            'bill_id' => 'Bill ID',
             'currency' => 'Currency',
             'type' => 'Type',
             'amount' => 'Amount',
@@ -68,6 +75,15 @@ class PlanningEvent extends ActiveRecord {
             'description' => 'Description',
             'status' => 'Status',
         ];
+    }
+
+    /**
+     * Gets query for [[Bill]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBill(): \yii\db\ActiveQuery {
+        return $this->hasOne(Bill::class, ['id' => 'bill_id']);
     }
 
     /**

@@ -16,23 +16,19 @@
               </tr>
             </thead>
 
-            <tbody>
-              <tr>
-                <td>RUB</td>
-                <td>{{ new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(1) }}</td>
-                <td>{{ this.$moment(this.currency.PreviousDate).format('DD.MM.YYYY HH:mm') }}</td>
-              </tr>
-
-              <tr>
-                <td>{{ this.currency.Valute.USD.CharCode }}</td>
-                <td>{{ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(this.currency.Valute.USD.Value) }}</td>
-                <td>{{ this.$moment(this.currency.PreviousDate).format('DD.MM.YYYY HH:mm') }}</td>
-              </tr>
-
-              <tr>
-                <td>{{ this.currency.Valute.EUR.CharCode }}</td>
-                <td>{{ new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(this.currency.Valute.EUR.Value) }}</td>
-                <td>{{ this.$moment(this.currency.PreviousDate).format('DD.MM.YYYY HH:mm') }}</td>
+            <tbody v-if="currencies !== null && currenciesUser !== null">
+              <tr v-for="currencyItem in currenciesUser" :key="currencyItem.id">
+                <td>{{ $t(currencyItem.Name) }}</td>
+                <td v-if="currencyItem.CharCode === 'RUB'">
+                  {{ new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB',
+                    minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(1) }}
+                </td>
+                <td v-else>
+                  {{ new Intl.NumberFormat(currencyItem.locale, { style: 'currency', currency: currencyItem.CharCode,
+                    minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(currencies.Valute[currencyItem.CharCode].Value / currencies.Valute[currencyItem.CharCode].Nominal)
+                  }}
+                </td>
+                <td>{{ $moment(currencies.Date).format('DD.MM.YYYY HH:mm') }}</td>
               </tr>
             </tbody>
           </v-simple-table>
@@ -48,8 +44,11 @@ export default {
     return {}
   },
   computed: {
-    currency () {
-      return this.$store.getters.currency
+    currencies () {
+      return this.$store.getters.currencies
+    },
+    currenciesUser () {
+      return this.$store.getters.currenciesUser
     }
   }
 }

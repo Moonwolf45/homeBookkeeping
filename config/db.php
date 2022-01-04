@@ -8,6 +8,6 @@ return [
     'charset' => 'utf8',
 
     'enableSchemaCache' => !YII_ENV_DEV,
-    'schemaCacheDuration' => 60,
+    'schemaCacheDuration' => 2592000,
     'schemaCache' => 'cache',
 ];

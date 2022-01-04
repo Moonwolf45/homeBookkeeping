@@ -1,4 +1,7 @@
 export const RUSSIAN_TRANSLATIONS = {
+    all: {
+        cancel: 'Отмена'
+    },
     main: {
         homeBookkeeping: 'Домашняя бухгалтерия',
         bill: 'Счёт',
@@ -17,23 +20,33 @@ export const RUSSIAN_TRANSLATIONS = {
     auth: {
         enterText: 'Войдите для работы',
         registrationText: 'Регистрация для получения доступа',
+        passwordRecovery: 'Восстановление пароля',
         login: 'Войти',
-        registration: 'Зарегестрироваться',
+        registration: 'Зарегистрироваться',
         noAccount: 'Нет аккаунта?',
+        forgotPassword: 'Забыли пароль?',
         ifAccount: 'Уже есть аккаунт?',
         registerNow: 'Зарегистрироваться!',
+        change: 'Сменить!',
         enterNow: 'Войти!',
         errors: {
-            noLogin: 'Пожалуйста, авторизуйтесь для доступа к странице'
+            noLogin: 'Пожалуйста, авторизуйтесь для доступа к странице',
+            notUserEmailIsExists: 'Пользователь с данным e-mail не найден',
         },
         language: {
             ru: 'Рус',
             en: 'Анг'
+        },
+        changePasswordSuccess: {
+            message: 'Ваш новый пароль успешно сгенерирован и был выслан вам на E-mail'
         }
     },
     overview: {
         name: 'Страница счета',
-        balance: 'Баланс',
+        bills: 'Счета',
+        createAnInvoice: 'Создание счета',
+        create: 'Создать',
+        edit: 'Редактировать',
         exchangeRates: 'Курс валют',
         currency: 'Валюта',
         course: 'Курс',
@@ -65,6 +78,11 @@ export const RUSSIAN_TRANSLATIONS = {
             edit_title: 'Изменить категорию',
             add_success: 'Категория успешно добавлена',
             edit_success: 'Категория успешно изменена',
+        },
+        profile: {
+            add_success: 'Счет успешно создан',
+            edit_success: 'Счет успешно изменен',
+            delete_success: 'Счет {name} удалён',
         }
     },
     sittings: {
@@ -74,12 +92,17 @@ export const RUSSIAN_TRANSLATIONS = {
         username: 'Имя пользователя',
         email: 'E-mail',
         password: 'Пароль',
+        currentPassword: 'Текущий пароль',
+        newPassword: 'Новый пароль',
         confirmPassword: 'Повторите пароль',
         loginAfterRegistration: 'Войти после регистрации',
+        billName: 'Введите название счета',
         date: 'Введите дату',
         time: 'Введите время',
         category: 'Выберите категорию',
         currency: 'Выберите валюту',
+        available_currencies: 'Доступные валюты',
+        main_currency: 'Выберите основную валюту',
         type: 'Выберите движение денежных средств',
         amount: 'Введите сумму',
         description: 'Введите описание',
@@ -87,6 +110,7 @@ export const RUSSIAN_TRANSLATIONS = {
         add: 'Добавить',
         edit: 'Изменить',
         changePassword: 'Изменить пароль',
+        wantDeleteAccount: 'Вы действительно хотите удалить счет?',
         errors: {
             emailRequired: 'E-mail не должен быть пустым',
             emailCorrect: 'Введите корректный e-mail',
@@ -101,11 +125,80 @@ export const RUSSIAN_TRANSLATIONS = {
             amountRequired: 'Сумма не может быть пустой',
             amountAboveZero: 'Сумма должна быть больше нуля',
             amountInsufficient: 'Суммы на данном счету недостаточно'
-        }
+        },
+        main_currency_help: 'В данную валюту будут преобразоваться все переводы совершенные в других валютах, а так же она будет ставиться по умолчанию во всех формах'
     },
     server: {
         errors: {
             unknownError: 'Неизвестная ошибка'
         }
+    },
+    category: {
+        food: 'Питание',
+        debts_loans: 'Долги, кредиты',
+        auto: 'Автотранспорт',
+        business_projects: 'Бизнес, проекты',
+        household_appliances: 'Бытовая техника',
+        mortgage: 'Ипотека',
+        mc_i_t: 'Мобильная связь, интернет, ТВ',
+        communal_payments: 'Коммунальные платежи',
+        health_beauty: 'Красота и здоровье',
+        financial_operations: 'Финансовые операции',
+        cafes_restaurants: 'Кафе и рестораны',
+        h_a_c: 'Дом, квартира, дача',
+        medicine_pharmacy: 'Медицина, аптека',
+        pets: 'Домашние животные',
+        education: 'Образование',
+        public_transport: 'Общественный транспорт',
+        clothes_footwear: 'Одежда и обувь',
+        vacation_travel: 'Отпуск, путешествия',
+        multimedia: 'Мультимедиа',
+        hypermarket: 'Гипермаркет',
+        e_c: 'Развлечения и праздники',
+        family_children: 'Семья и дети',
+        construction_repair: 'Строительство и ремонт',
+        hobbies_interests: 'Хобби и увлечения',
+        f_t_c: 'Штрафы, налоги, комиссии',
+        other: 'Другое',
+        charity: 'Благотворительность',
+        other_expenses: 'Прочие расходы',
+        cash_withdrawal: 'Снятие наличных',
+        t_f_c_t_c: 'Перевод с карты на карту',
+    },
+    currency: {
+        RUB: 'Рубль',
+        USD: 'Доллар США',
+        EUR: 'Евро',
+        AUD: 'Австралийский доллар',
+        GBP: 'Фунт стерлингов Соединенного королевства',
+        AMD: 'Армянских драмов',
+        BYN: 'Белорусский рубль',
+        BGN: 'Болгарский лев',
+        BRL: 'Бразильский реал',
+        HUF: 'Венгерских форинтов',
+        HKD: 'Гонконгских долларов',
+        DKK: 'Датская крона',
+        INR: 'Индийских рупий',
+        KZT: 'Казахстанских тенге',
+        CAD: 'Канадский доллар',
+        KGS: 'Киргизских сомов',
+        CNY: 'Китайский юань',
+        MDL: 'Молдавских леев',
+        NOK: 'Норвежских крон',
+        PLN: 'Польский злотый',
+        RON: 'Румынский лей',
+        XDR: 'СДР (специальные права заимствования)',
+        SGD: 'Сингапурский доллар',
+        TJS: 'Таджикских сомони',
+        TRY: 'Турецких лир',
+        TMT: 'Новый туркменский манат',
+        UZS: 'Узбекских сумов',
+        UAH: 'Украинских гривен',
+        CZK: 'Чешских крон',
+        SEK: 'Шведских крон',
+        CHF: 'Швейцарский франк',
+        ZAR: 'Южноафриканских рэндо',
+        KRW: 'Вон Республики Корея',
+        JPY: 'Японских иен'
     }
 };

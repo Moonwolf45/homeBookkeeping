@@ -7,6 +7,7 @@ import store from './store'
 import { i18n } from './i18n/i18n'
 
 import 'vuetify/dist/vuetify.min.css'
+import '@mdi/font/css/materialdesignicons.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 import App from './App'

@@ -39,9 +39,9 @@ class CategoryController extends AllApiController {
             TagDependency::invalidate(Yii::$app->cache, 'category_' . $newCategory->user_id);
 
             return $this->asJson($newCategory);
+        } else {
+            return $this->asJson($newCategory->errors);
         }
-
-        throw new HttpException(400, 'server.errors.unknownError');
     }
 
     /**

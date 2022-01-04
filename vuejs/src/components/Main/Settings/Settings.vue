@@ -9,29 +9,39 @@
     <v-skeleton-loader class="mx-auto" type="card-heading" v-if="loading">
     </v-skeleton-loader>
 
-    <v-row v-if="!loading">
+    <v-row v-if="!loading && currenciesValue.length !== 0 && currenciesItems.length !== 0">
       <v-card-text>
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-text-field prepend-icon="account_box" :label="$t('form.username')" type="text" v-model="username" />
           <v-text-field prepend-icon="contact_mail" :label="$t('form.email')" type="email" :rules="emailRules"
-                        v-model="email" required />
+            v-model="email" required />
 
-          <v-radio-group prepend-icon="price_change" v-model="currency" row :label="$t('form.currency')" :rules="currencyRules" dense outlined>
-            <v-radio v-for="item in currencies" :key="item.type" :label="item.label" on-icon="radio_button_checked"
-                     :value="item.type" off-icon="radio_button_unchecked"></v-radio>
+          <v-select prepend-icon="currency_exchange" v-model="currenciesValue" :items="currenciesItems" multiple attach
+                    chips :label="$t('form.available_currencies')" dense></v-select>
+
+          <v-radio-group prepend-icon="price_change" v-model="currency" row :label="$t('form.main_currency')"
+            :rules="currencyRules" dense outlined>
+            <v-radio v-for="item in currenciesValue" :key="item" :label="item" on-icon="radio_button_checked"
+                     :value="item" off-icon="radio_button_unchecked"></v-radio>
           </v-radio-group>
+          <span class="text--secondary">{{ $t('form.main_currency_help') }}</span>
 
           <v-checkbox prepend-icon="restore_page" type="checkbox" name="loginAfterRegistration" v-model="changePassword"
                       :label="$t('form.changePassword')" off-icon="check_box_outline_blank" on-icon="check_box" />
 
           <div v-if="changePassword">
-            <v-text-field prepend-icon="lock" :label="$t('form.password')" required :counter="6" :rules="passwordRules"
-                          :type="showPassword ? 'text' : 'password'" v-model="password"
-                          @click:append="showPassword = !showPassword" :append-icon="showPassword ? 'visibility' : 'visibility_off'" />
+            <v-text-field prepend-icon="lock" :label="$t('form.currentPassword')" required :counter="6" :rules="passwordRules"
+              :type="showPassword ? 'text' : 'password'" v-model="password"
+              @click:append="showPassword = !showPassword" :append-icon="showPassword ? 'visibility' : 'visibility_off'" />
+
+            <v-text-field prepend-icon="lock" :label="$t('form.newPassword')" required :counter="6" :rules="newPasswordRules"
+              :type="showNewPassword ? 'text' : 'password'" v-model="newPassword"
+              @click:append="showNewPassword = !showNewPassword" :append-icon="showNewPassword ? 'visibility' : 'visibility_off'" />
+
             <v-text-field prepend-icon="lock" :label="$t('form.confirmPassword')" required :counter="6"
-                          :type="showConfirmPassword ? 'text' : 'password'" :rules="passwordConfirmRules"
-                          v-model="confirmPassword" @click:append="showConfirmPassword = !showConfirmPassword"
-                          :append-icon="showConfirmPassword ? 'visibility' : 'visibility_off'" />
+              :type="showConfirmPassword ? 'text' : 'password'" :rules="passwordConfirmRules"
+              v-model="confirmPassword" @click:append="showConfirmPassword = !showConfirmPassword"
+              :append-icon="showConfirmPassword ? 'visibility' : 'visibility_off'" />
           </div>
         </v-form>
       </v-card-text>
@@ -49,27 +59,27 @@
 export default {
   data () {
     return {
-      username: '',
-      email: '',
+      username: this.$store.getters.user.username,
+      email: this.$store.getters.user.email,
       emailRules: [
         v => !!v || this.$i18n.t('form.errors.emailRequired'),
         v => /.+@.+/.test(v) || this.$i18n.t('form.errors.emailCorrect')
       ],
-      currency: 'rub',
+      currency: null,
       currencyRules: [
         v => !!v || this.$i18n.t('form.errors.currencyRequired')
       ],
-      currencies: [
-        { type: 'rub', label: 'RUB' },
-        { type: 'usd', label: 'USD' },
-        { type: 'eur', label: 'EUR' }
-      ],
+      currenciesItems: [],
+      currenciesValue: [],
       changePassword: false,
       password: '',
       showPassword: false,
+      newPassword: '',
+      showNewPassword: false,
       confirmPassword: '',
       showConfirmPassword: false,
       passwordRules: [],
+      newPasswordRules: [],
       passwordConfirmRules: [],
       valid: false
     }
@@ -78,21 +88,51 @@ export default {
     loading () {
       return this.$store.getters.profile === null && this.$store.getters.user === null
     },
+    mainCurrency () {
+      return this.$store.getters.mainCurrency
+    },
+    currenciesUser () {
+      return this.$store.getters.currenciesUser
+    },
+    currenciesAll () {
+      return this.$store.getters.currenciesAll
+    },
+    user () {
+      return this.$store.getters.user
+    }
   },
   watch: {
+    mainCurrency () {
+      this.currency = this.mainCurrency.CharCode
+    },
+    currenciesAll () {
+      this.currenciesAll.forEach((currency) => {
+          this.currenciesItems.push({ text: currency.CharCode, value: currency.CharCode, disabled: currency.CharCode === 'RUB' })
+      })
+    },
+    currenciesUser () {
+      this.currenciesUser.forEach((currency) => {
+        this.currenciesValue.push(currency.CharCode)
+      })
+    },
     changePassword () {
       if (this.changePassword) {
         this.passwordRules = [
           v => !!v || this.$i18n.t('form.errors.passwordRequired'),
           v => (v && v.length >= 6) || this.$i18n.t('form.errors.passwordLong')
         ]
+        this.newPasswordRules = [
+          v => !!v || this.$i18n.t('form.errors.passwordRequired'),
+          v => (v && v.length >= 6) || this.$i18n.t('form.errors.passwordLong')
+        ]
         this.passwordConfirmRules = [
           v => !!v || this.$i18n.t('form.errors.passwordRequired'),
           v => (v && v.length >= 6) || this.$i18n.t('form.errors.passwordLong'),
-          v => v === this.password || this.$i18n.t('form.errors.passwordNotMatch')
+          v => v === this.newPassword || this.$i18n.t('form.errors.passwordNotMatch')
         ]
       } else {
         this.passwordRules = []
+        this.newPasswordRules = []
         this.passwordConfirmRules = []
       }
     },
@@ -105,7 +145,9 @@ export default {
           username: this.username,
           email: this.email,
           currency: this.currency,
+          changePassword: this.changePassword,
           password: this.password,
+          newPassword: this.newPassword,
           confirmPassword: this.confirmPassword,
         }
 

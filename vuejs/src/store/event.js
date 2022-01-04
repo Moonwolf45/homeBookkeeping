@@ -5,20 +5,10 @@ import moment from 'moment';
 
 class Events {
   constructor (user_id, category_id, currency, type, amount, date, description, id = null) {
-    let cur = ''
-
-    this.id = parseInt(id);
+    this.id = id !== null ? parseInt(id) : null;
     this.user_id = parseInt(user_id);
     this.category_id = parseInt(category_id);
-
-    if (parseInt(currency) === 1) {
-      cur = 'rub'
-    } else if (parseInt(currency) === 2) {
-      cur = 'usd'
-    } else {
-      cur = 'eur'
-    }
-    this.currency = cur;
+    this.currency = currency;
     this.type = parseInt(type) === 1 ? 'income' : 'outcome' ;
     this.amount = parseFloat(amount);
     this.date = moment(date, 'X').format('DD.MM.YYYY HH:mm');

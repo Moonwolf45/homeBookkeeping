@@ -10,22 +10,13 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property int $user_id
+ * @property string $name
  * @property float|null $balance
- * @property int $currency
+ * @property string $currency
  *
  * @property User $user
  */
 class Bill extends ActiveRecord {
-
-    const CURRENCY_RUB = 1;
-    const CURRENCY_USD = 2;
-    const CURRENCY_EUR = 3;
-
-    const CURRENCY_ARRAY = [
-        'rub' => self::CURRENCY_RUB,
-        'usd' => self::CURRENCY_USD,
-        'eur' => self::CURRENCY_EUR
-    ];
 
     /**
      * {@inheritdoc}
@@ -39,9 +30,12 @@ class Bill extends ActiveRecord {
      */
     public function rules(): array {
         return [
-            [['user_id', 'currency'], 'required'],
-            [['user_id', 'currency'], 'integer'],
+            [['user_id'], 'required'],
+            [['user_id'], 'integer'],
+            [['name', 'currency'], 'string'],
             [['balance'], 'number'],
+            [['balance'], 'default', 'value' => 0],
+            [['currency'], 'default', 'value' => Currency::DEFAULT_CURRENCY['RUB']['CharCode']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class,
                 'targetAttribute' => ['user_id' => 'id']],
         ];
@@ -54,6 +48,7 @@ class Bill extends ActiveRecord {
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
+            'name' => 'Name',
             'balance' => 'Balance Rub',
             'currency' => 'Currency',
         ];
@@ -66,5 +61,14 @@ class Bill extends ActiveRecord {
      */
     public function getUser(): \yii\db\ActiveQuery {
         return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+
+    /**
+     * Gets query for [[User]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getIsEvent(): \yii\db\ActiveQuery {
+        return $this->hasMany(Event::class, ['bill_id' => 'id']);
     }
 }

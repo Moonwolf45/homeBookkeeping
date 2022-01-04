@@ -33,8 +33,8 @@ import { HistoryFilterComponent } from './main/history-page/history-filter/histo
 import { FilterPipe } from './shared/pipes/filter.pipe';
 import { LoaderComponent } from './shared/components/loader/loader.component';
 
-registerLocaleData(localeRu, 'ru-RU', localeRuExtra);
-registerLocaleData(localeFr, 'fr-FR', localeFrExtra);
+registerLocaleData(localeRu, 'ru_RU', localeRuExtra);
+registerLocaleData(localeFr, 'fr_FR', localeFrExtra);
 
 @NgModule({
   declarations: [
