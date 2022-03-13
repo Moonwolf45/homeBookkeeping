@@ -16,6 +16,8 @@ class m211225_152632_add_bill_id_column_to_events_table extends Migration {
         $this->createIndex('idx-events-bill_id', '{{%events}}', 'bill_id');
         $this->addForeignKey('fk-events-bill_id', '{{%events}}', 'bill_id', '{{%bills}}',
             'id', 'CASCADE');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -26,5 +28,7 @@ class m211225_152632_add_bill_id_column_to_events_table extends Migration {
         $this->dropIndex('idx-events-bill_id', '{{%events}}');
 
         $this->dropColumn('{{%events}}', 'bill_id');
+
+        Yii::$app->cache->flush();
     }
 }

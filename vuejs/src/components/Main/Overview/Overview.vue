@@ -19,39 +19,26 @@
       </v-col>
 
       <v-col class="col-md-6 col-xs-12">
-        <currencyCard :loader="currencyLoader"></currencyCard>
+        <currencyCard></currencyCard>
       </v-col>
     </v-row>
   </div>
 </template>
 
 <script>
-import BillCard from '@/components/Main/Overview/BillCard';
-import CurrencyCard from '@/components/Main/Overview/CurrencyCard';
+import BillCard from './../../Main/Overview/BillCard';
+import CurrencyCard from './../../Main/Overview/CurrencyCard';
 
 export default {
   data () {
-    return {
-      loading: true,
-      currencyLoader: false
-    }
-  },
-  mounted () {
-    this.getProfile()
+    return {}
   },
   methods: {
     onRefresh () {
-      this.getCurrency(true)
+      this.getCurrency()
     },
-    getProfile () {
-      this.$store.dispatch('getProfile', this.$store.getters.user.id).then(() => {}).catch(() => {})
-    },
-    getCurrency (load) {
-      this.currencyLoader = load
-
-      this.$store.dispatch('getCurrency').then(() => {
-        this.currencyLoader = false
-      }).catch(() => {})
+    getCurrency () {
+      this.$store.dispatch('getCurrency').then(() => {}).catch(() => {})
     }
   },
   components: {
@@ -62,12 +49,19 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.main_title {
-  float: left;
-  font-size: 1.45rem;
-  line-height: 1.1;
-  font-weight: 600;
-  margin: 0;
-  color: #4f5f6f;
+.title-block {
+  overflow: hidden;
+  padding-bottom: 15px;
+  margin: 0 0 30px 0;
+  border-bottom: 1px solid #d7dde4;
+
+  .main_title {
+    float: left;
+    font-size: 1.45rem;
+    line-height: 1.1;
+    font-weight: 600;
+    margin: 0;
+    color: #4f5f6f;
+  }
 }
 </style>

@@ -7,10 +7,10 @@ use yii\base\Model;
 
 class LoginForm extends Model {
 
-    public $email;
-    public $password;
+    public string $email;
+    public string $password;
 
-    private $_user = false;
+    private bool $_user = false;
 
     /**
      * @return array the validation rules.
@@ -31,7 +31,7 @@ class LoginForm extends Model {
      * @param string $attribute the attribute currently being validated
      * @param array $params the additional name-value pairs given in the rule
      */
-    public function validatePassword(string $attribute, $params) {
+    public function validatePassword(string $attribute, array $params) {
         if (!$this->hasErrors()) {
             $user = $this->getUser();
 

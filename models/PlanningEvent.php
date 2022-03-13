@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -17,19 +18,18 @@ use yii\db\ActiveRecord;
  * @property float $amount
  * @property int $date
  * @property string|null $description
- * @property int $view
  * @property int $status
+ * @property int $event_id
  *
  * @property Category $category
+ * @property Bill $bill
  * @property User $user
+ * @property Event $event
  */
 class PlanningEvent extends ActiveRecord {
 
     const STATUS_ON = 1;
     const STATUS_OFF = 0;
-
-    const VIEW_ON = 1;
-    const VIEW_OFF = 0;
 
     /**
      * {@inheritdoc}
@@ -48,7 +48,6 @@ class PlanningEvent extends ActiveRecord {
             [['amount'], 'number'],
             [['description', 'currency'], 'string'],
             [['currency'], 'default', 'value' => Currency::DEFAULT_CURRENCY['RUB']['CharCode']],
-            [['view'], 'default', 'value' => self::VIEW_ON],
             [['status'], 'default', 'value' => self::STATUS_ON],
             [['bill_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bill::class,
                 'targetAttribute' => ['bill_id' => 'id']],
@@ -56,6 +55,8 @@ class PlanningEvent extends ActiveRecord {
                 'targetAttribute' => ['category_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class,
                 'targetAttribute' => ['user_id' => 'id']],
+            [['event_id'], 'exist', 'skipOnError' => true, 'targetClass' => Event::class,
+                'targetAttribute' => ['event_id' => 'id']],
         ];
     }
 
@@ -74,33 +75,43 @@ class PlanningEvent extends ActiveRecord {
             'date' => 'Date',
             'description' => 'Description',
             'status' => 'Status',
+            'event_id' => 'Event ID',
         ];
     }
 
     /**
      * Gets query for [[Bill]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getBill(): \yii\db\ActiveQuery {
+    public function getBill(): ActiveQuery {
         return $this->hasOne(Bill::class, ['id' => 'bill_id']);
     }
 
     /**
      * Gets query for [[Category]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getCategory(): \yii\db\ActiveQuery {
+    public function getCategory(): ActiveQuery {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getUser(): \yii\db\ActiveQuery {
+    public function getUser(): ActiveQuery {
         return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+
+    /**
+     * Gets query for [[Event]].
+     *
+     * @return ActiveQuery
+     */
+    public function getEvent(): ActiveQuery {
+        return $this->hasOne(Event::class, ['id' => 'event_id']);
     }
 }

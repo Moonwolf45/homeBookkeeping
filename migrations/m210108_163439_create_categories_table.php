@@ -22,6 +22,8 @@ class m210108_163439_create_categories_table extends Migration {
         $this->createIndex('idx-categories-user_id', '{{%categories}}', 'user_id');
         $this->addForeignKey('fk-categories-user_id', '{{%categories}}', 'user_id',
             '{{%users}}', 'id', 'CASCADE');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -32,5 +34,7 @@ class m210108_163439_create_categories_table extends Migration {
         $this->dropIndex('idx-categories-user_id', '{{%categories}}');
 
         $this->dropTable('{{%categories}}');
+
+        Yii::$app->cache->flush();
     }
 }

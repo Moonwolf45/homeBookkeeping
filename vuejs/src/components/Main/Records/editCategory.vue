@@ -10,16 +10,16 @@
       <v-card-text>
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-select :items="category" :label="$t('form.category')" :rules="categoryRules" dense outlined
-                    item-text="title" item-value="id" v-model="category_id" @change="changeData"></v-select>
+                    :item-text="categoryName" item-value="id" v-model="category_id" @change="changeData"></v-select>
 
-          <v-text-field type="text" :label="$t('form.title')" v-model="title" dense outlined required></v-text-field>
+          <v-text-field type="text" :label="$t('form.title')" v-model="title" dense required outlined />
 
           <v-color-picker elevation="2" v-model="color" mode="rgba" hide-mode-switch required></v-color-picker>
         </v-form>
       </v-card-text>
       <v-card-actions>
         <v-spacer/>
-        <v-btn color="primary" @click="onSubmit()" :loading="loading" :disabled="!valid || category_id === ''">
+        <v-btn color="primary" @click="onSubmit()" :loading="loading" :disabled="!valid || loading">
           {{ $t('form.edit') }}
         </v-btn>
       </v-card-actions>
@@ -43,16 +43,19 @@ export default {
   },
   computed: {
     loading () {
-      return this.$store.getters.category === null
+      return this.$store.getters.loadingCategory
     },
     category () {
       return this.$store.getters.category
     }
   },
   methods: {
+    categoryName (item) {
+      return this.$i18n.t(item.title)
+    },
     changeData () {
       let cat = this.$store.getters.categoryById(this.category_id)
-      this.title = cat.title
+      this.title = this.$i18n.t(cat.title)
       this.user_id = cat.user_id
       this.hexToRgbA(cat.color)
     },

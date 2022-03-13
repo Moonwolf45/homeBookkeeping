@@ -29,6 +29,8 @@ class m210108_125604_create_users_table extends Migration {
         $this->createIndex('idx-users-email', '{{%users}}', 'email', true);
         $this->createIndex('idx-users-password_reset_token', '{{%users}}', 'password_reset_token',
             true);
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -36,6 +38,8 @@ class m210108_125604_create_users_table extends Migration {
      */
     public function safeDown () {
         echo "m210108_125604_crate_users_table cannot be reverted.\n";
+
+        Yii::$app->cache->flush();
 
         return false;
     }

@@ -5,11 +5,14 @@
     <v-card-text>
       <v-form ref="form" v-model="valid" lazy-validation>
         <v-text-field prepend-icon="contact_mail" :label="$t('form.email')" type="email" :rules="emailRules"
-                      v-model="email" required />
+                      v-model="email" required outlined />
         <v-text-field prepend-icon="lock" :label="$t('form.password')" :type="showPassword ? 'text' : 'password'"
-                      :counter="6" :rules="passwordRules" v-model="password"
+                      :counter="6" :rules="passwordRules" v-model="password" outlined
                       @click:append="showPassword = !showPassword" required
                       :append-icon="showPassword ? 'visibility' : 'visibility_off'" />
+
+        <vue-recaptcha ref="recaptcha" :sitekey="process.env.VUE_APP_KEY_SITE" :loadRecaptchaScript="true"
+                       :language="this.$root.$i18n.locale" @verify="verifyRecaptcha" @expired="onCaptchaExpired" />
       </v-form>
     </v-card-text>
     <v-card-actions>
@@ -31,6 +34,8 @@
 </template>
 
 <script>
+import { VueRecaptcha } from 'vue-recaptcha';
+
 export default {
   data () {
     return {
@@ -70,7 +75,16 @@ export default {
           this.$router.push('/')
         }).catch(() => {})
       }
+    },
+    verifyRecaptcha () {
+
+    },
+    onCaptchaExpired () {
+      this.$refs.recaptcha.reset()
     }
+  },
+  components: {
+    VueRecaptcha
   }
 }
 </script>

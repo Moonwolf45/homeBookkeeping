@@ -5,6 +5,7 @@ namespace app\models;
 
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
@@ -21,6 +22,7 @@ use yii\web\IdentityInterface;
  * @property int $status
  * @property int $created_at
  * @property int $updated_at
+ * @property string $timeZone
  */
 class User extends ActiveRecord implements IdentityInterface {
 
@@ -52,9 +54,10 @@ class User extends ActiveRecord implements IdentityInterface {
     public function rules(): array {
         return [
             [['email', 'password_reset_token'], 'unique'],
-            [['email', 'password_hash'], 'required'],
+            [['email', 'password_hash', 'timeZone'], 'required'],
             [['email', 'password_hash', 'username'], 'filter', 'filter' => 'trim'],
             [['email'], 'email'],
+            [['timeZone'], 'default', 'value' => 'Europe/Moscow'],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
         ];
@@ -212,10 +215,19 @@ class User extends ActiveRecord implements IdentityInterface {
     /**
      * Gets query for [[Profile]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getProfile(): \yii\db\ActiveQuery {
-        return $this->hasOne(Bill::class, ['user_id' => 'id']);
+    public function getProfile(): ActiveQuery {
+        return $this->hasMany(Bill::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[TokenUser]].
+     *
+     * @return ActiveQuery
+     */
+    public function getNotificationToken(): ActiveQuery {
+        return $this->hasMany(TokenUser::class, ['user_id' => 'id']);
     }
 
     /**

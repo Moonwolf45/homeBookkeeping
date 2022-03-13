@@ -4,6 +4,8 @@ namespace app\api\v1\controllers;
 
 
 use app\models\Bill;
+use app\models\Currency;
+use app\models\Event;
 use Yii;
 use yii\caching\TagDependency;
 use yii\web\HttpException;
@@ -36,7 +38,7 @@ class ProfileController extends AllApiController {
         $newBill->user_id = $new_data_bill['user_id'];
         $newBill->name = $new_data_bill['name'] != '' ? $new_data_bill['name'] : '#' . ((int)$count + 1);
         $newBill->balance = $new_data_bill['balance'];
-        $newBill->currency = Bill::CURRENCY_ARRAY[$new_data_bill['currency']];
+        $newBill->currency = $new_data_bill['currency'];
 
         if ($newBill->validate() && $newBill->save()) {
             TagDependency::invalidate(Yii::$app->cache, 'profile_' . $newBill->user_id);
@@ -75,7 +77,10 @@ class ProfileController extends AllApiController {
      */
     public function actionView ($id): Response {
         $profile = Yii::$app->cache->getOrSet('profile_' . $id, function () use ($id) {
-            return Bill::find()->where(['user_id' => $id])->asArray()->all();
+            return Bill::find()->joinWith([
+                'countEvent' => function ($query) {
+                    $query->count();
+                }])->where([Bill::tableName() . '.user_id' => $id])->asArray()->all();
         }, Yii::$app->params['cacheDuration'], new TagDependency(['tags' => 'profile_' . $id]));
 
         return $this->asJson($profile);
@@ -104,7 +109,19 @@ class ProfileController extends AllApiController {
      * @return Response
      */
     public function actionCurrency (): Response {
-        $currency = Yii::$app->cache->getOrSet('currency', function () {
+        $getParams = Yii::$app->getRequest()->getQueryParams();
+
+        $currency = Yii::$app->cache->getOrSet('currency_' . $getParams['base'], function () use ($getParams) {
+//            $currency_url = "https://openexchangerates.org/api/latest.json?app_id=" . Yii::$app->params['currencyAppId']
+//                . '&base=' . $getParams['base'] . '&symbols=' . implode(',', array_keys(Currency::DEFAULT_CURRENCY));
+
+//            $ch = curl_init();
+//            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//            curl_setopt($ch, CURLOPT_URL, $currency_url);
+//            $result = curl_exec($ch);
+//            curl_close($ch);
+
+//            return $result;
             return file_get_contents('https://www.cbr-xml-daily.ru/daily_json.js');
         }, 86400);
 

@@ -23,6 +23,8 @@ class m210108_143718_create_profiles_table extends Migration {
         $this->createIndex('idx-profiles-user_id', '{{%profiles}}', 'user_id');
         $this->addForeignKey('fk-profiles-user_id', '{{%profiles}}', 'user_id', '{{%users}}',
             'id', 'CASCADE');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -33,5 +35,7 @@ class m210108_143718_create_profiles_table extends Migration {
         $this->dropIndex('idx-profiles-user_id', '{{%profiles}}');
 
         $this->dropTable('{{%profiles}}');
+
+        Yii::$app->cache->flush();
     }
 }

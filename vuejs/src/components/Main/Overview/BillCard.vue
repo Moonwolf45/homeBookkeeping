@@ -23,13 +23,20 @@
               <div class="stat">{{ bill.name }}</div>
 
               <div class="currency-content">
-                <div v-if="bill.currency === 'RUB'" class="stat-icon">&#8381;</div>
-                <div v-else-if="bill.currency === 'USD'" class="stat-icon">&#36;</div>
-                <div v-else-if="bill.currency === 'EUR'" class="stat-icon">&euro;</div>
+                <div class="stat-icon" v-html="$getSymbolCurrency(bill.currency)"></div>
                 <div class="stat-value">
-                  <div class="value">{{ new Intl.NumberFormat(currencies.filter(currency =>
-                    currency.CharCode === bill.currency).locale, { style: 'decimal', currency: bill.currency,
+                  <div class="value">{{ new Intl.NumberFormat(currenciesUser.filter((cur) => {
+                    cur.CharCode === bill.currency }).locale, { style: 'decimal', currency: bill.currency,
                     minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bill.balance) }}
+                  </div>
+                </div>
+                <div v-if="bill.currency !== currencyDefault" class="two-currency"> ~
+                  <div class="stat-icon" v-html="$getSymbolCurrency(currencyDefault)"></div>
+                  <div class="stat-value">
+                    <div class="value"> {{ new Intl.NumberFormat(currentLocale, { style: 'decimal',
+                      currency: currencyDefault, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+                        $getCurrencyBalance(currencies, bill.balance, bill.currency, currencyDefault)) }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -62,16 +69,16 @@
       <v-card-text>
         <v-container>
           <v-form ref="form" v-model="valid" lazy-validation>
-            <v-text-field :label="$t('form.billName')" maxlength="255" v-model="name" dense outlined></v-text-field>
+            <v-text-field :label="$t('form.billName')" maxlength="255" v-model="name" dense outlined />
 
-            <v-radio-group :disabled="editModal" v-model="currency" row :label="$t('form.currency')" dense outlined
-                           :rules="currencyRules">
-              <v-radio v-for="item in currencies" :key="item.CharCode" :label="item.CharCode" on-icon="radio_button_checked"
+            <v-radio-group :disabled="editModal" v-model="currency" :value="currencyDefault" row dense
+                           :label="$t('form.currency')" :rules="currencyRules">
+              <v-radio v-for="item in currenciesUser" :key="item.CharCode" :label="item.CharCode" on-icon="radio_button_checked"
                        :value="item.CharCode" off-icon="radio_button_unchecked" required></v-radio>
             </v-radio-group>
 
-            <v-text-field :disabled="editModal" type="number" :label=" $t('form.amount')" :rules="amountRules"
-                          v-model="amount" dense outlined required></v-text-field>
+            <v-text-field :disabled="editModal" type="number" :label="$t('form.amount')" :rules="amountRules" dense
+                          v-model="amount" required outlined />
           </v-form>
         </v-container>
       </v-card-text>
@@ -89,7 +96,7 @@
 </template>
 
 <script>
-import ModalWindow from '@/components/Other/Modal';
+import ModalWindow from './../../Other/ModalComponent';
 
 export default {
   data () {
@@ -98,7 +105,7 @@ export default {
       editModal: false,
       bill_id: null,
       name: null,
-      currency: null,
+      currency: this.currencyDefault,
       currencyRules: [
         v => !!v || this.$i18n.t('form.errors.currencyRequired')
       ],
@@ -112,21 +119,23 @@ export default {
   },
   computed: {
     loading () {
-      return this.$store.getters.profile === null
+      return this.$store.getters.profile === null || this.$store.getters.loadingMainCurrency
+          || this.$store.getters.loadingCurrencyUser || this.$store.getters.loadingCurrency
     },
     profile () {
       return this.$store.getters.profile
     },
-    mainCurrency () {
-      return this.$store.getters.mainCurrency
+    currencyDefault () {
+      return this.$store.getters.mainCurrency?.CharCode
     },
     currencies () {
+      return this.$store.getters.currencies
+    },
+    currenciesUser () {
       return this.$store.getters.currenciesUser;
-    }
-  },
-  watch: {
-    mainCurrency () {
-      this.currency = this.mainCurrency.CharCode
+    },
+    currentLocale () {
+      return this.$store.getters.mainCurrency?.locale
     }
   },
   methods: {
@@ -135,12 +144,12 @@ export default {
     },
     onEditBill (id) {
       this.openModal = !this.openModal;
-      this.editModal = true;
       const profile = this.$store.getters.profileById(id);
+      this.editModal = profile.countEvent > 0;
 
       this.user_id = this.$store.getters.user.id;
       this.name = profile.name;
-      this.balance = profile.amount;
+      this.amount = profile.balance;
       this.currency = profile.currency;
       this.bill_id = profile.id;
     },
@@ -159,13 +168,13 @@ export default {
 
       this.$refs.form.reset();
       this.name = null;
-      this.currency = 'rub';
+      this.currency = this.$store.getters.mainCurrency?.CharCode ?? 'RUB'
       this.amount = 0;
     },
     createAccount (edit = false) {
       if (this.$refs.form.validate()) {
         const Profile = {
-          user_id: this.$store.getters.user.id,
+          user_id: this.$store.getters.user?.id,
           name: this.name,
           balance: this.amount,
           currency: this.currency,
@@ -240,13 +249,28 @@ export default {
   margin-right: 10px;
   vertical-align: middle;
 
-  font-size: 1.3vw;
-  line-height: 24px;
+  font-size: 25px;
+  line-height: 30px;
   font-weight: 500;
   color: #4f5f6f;
 
   .v-btn {
     margin: 0 5px 0 0;
+  }
+}
+.two-currency {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .stat-icon {
+    width: 25px;
+    font-size: 15px;
+    color: rgba(0, 0, 0, .6);
+  }
+  .stat-value {
+    font-size: 15px;
+    line-height: inherit;
   }
 }
 </style>

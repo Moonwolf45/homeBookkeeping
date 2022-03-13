@@ -6,7 +6,7 @@
       </v-card-title>
       <v-card-text>
         <v-form ref="form" v-model="valid" lazy-validation>
-          <v-text-field type="text" :label="$t('form.title')" v-model="title" dense outlined required></v-text-field>
+          <v-text-field type="text" :label="$t('form.title')" v-model="title" dense required outlined />
 
           <v-color-picker elevation="2" v-model="color" mode="rgba" hide-mode-switch required></v-color-picker>
         </v-form>

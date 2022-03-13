@@ -12,6 +12,8 @@ class m220104_162354_add_main_currency_column_to_currency_table extends Migratio
      */
     public function safeUp() {
         $this->addColumn('{{%currency}}', 'main_currency', Schema::TYPE_STRING . ' NOT NULL DEFAULT \'RUB\'');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -19,5 +21,7 @@ class m220104_162354_add_main_currency_column_to_currency_table extends Migratio
      */
     public function safeDown() {
         $this->dropColumn('{{%currency}}', 'main_currency');
+
+        Yii::$app->cache->flush();
     }
 }

@@ -19,6 +19,7 @@ class m210108_163733_create_events_table extends Migration {
             'currency' => Schema::TYPE_SMALLINT . '(1) NOT NULL DEFAULT 1',
             'type' => Schema::TYPE_SMALLINT . '(1) NOT NULL DEFAULT 1',
             'amount' => Schema::TYPE_DECIMAL . '(12,2) NOT NULL DEFAULT 0.00',
+            'amount' => Schema::TYPE_DECIMAL . '(12,2) NOT NULL DEFAULT 0.00',
             'date' => Schema::TYPE_INTEGER . ' NOT NULL',
             'description' => Schema::TYPE_TEXT . ' NULL DEFAULT NULL',
         ]);
@@ -30,6 +31,8 @@ class m210108_163733_create_events_table extends Migration {
         $this->createIndex('idx-events-category_id', '{{%events}}', 'category_id');
         $this->addForeignKey('fk-events-category_id', '{{%events}}', 'category_id',
             '{{%categories}}', 'id', 'CASCADE');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -43,6 +46,8 @@ class m210108_163733_create_events_table extends Migration {
         $this->dropIndex('idx-events-user_id', '{{%events}}');
 
         $this->dropTable('{{%events}}');
+
+        Yii::$app->cache->flush();
     }
 
 }

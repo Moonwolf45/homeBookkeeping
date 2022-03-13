@@ -14,11 +14,12 @@
               <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition" offset-y
                       min-width="auto">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field v-model="dateFormatted" :label="$t('form.date')" dense outlined v-bind="attrs" v-on="on"
-                                @blur="date = parseDate(dateFormatted)" readonly></v-text-field>
+                  <v-text-field v-model="dateFormatted" :label="$t('form.date')" dense v-bind="attrs" v-on="on"
+                                @blur="date = parseDate(dateFormatted)" readonly outlined />
                 </template>
-                <v-date-picker ref="picker" v-model="date" :max="new Date().toISOString().substr(0, 10)"
-                               min="1970-01-01" @change="saveDate" first-day-of-week="1" :locale="this.$root.$i18n.locale">
+                <v-date-picker ref="picker" v-model="date" :max="$moment().format('YYYY-MM-DD')" min="1970-01-01"
+                               @change="saveDate" :first-day-of-week="this.$root.$i18n.locale === 'ru' ? 1 : 0"
+                               :locale="this.$root.$i18n.locale">
                 </v-date-picker>
               </v-menu>
             </v-col>
@@ -27,8 +28,7 @@
               <v-menu ref="menu2" v-model="menu2" :close-on-content-click="false" transition="scale-transition" offset-y
                       min-width="auto" :return-value.sync="time">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field v-model="time" :label="$t('form.time')" dense outlined v-bind="attrs" v-on="on" readonly>
-                  </v-text-field>
+                  <v-text-field v-model="time" :label="$t('form.time')" dense v-bind="attrs" v-on="on" readonly outlined />
                 </template>
                 <v-time-picker format="24hr" v-if="menu2" v-model="time" @click:minute="$refs.menu2.save(time)">
                 </v-time-picker>
@@ -36,23 +36,25 @@
             </v-col>
           </v-row>
 
-          <v-select :items="category" :label="$t('form.category')" :rules="categoryRules" dense outlined
-                    item-text="title" item-value="id" v-model="category_id" required></v-select>
+          <v-select :items="profile" :label="$t('form.selectAccount')" :rules="billRules" dense outlined
+                    item-text="name" item-value="id" v-model="bill_id" required></v-select>
 
-          <v-radio-group v-model="currency" row :label="$t('form.currency')" :rules="currencyRules" dense outlined>
-            <v-radio v-for="item in currencies" :key="item.type" :label="item.label" on-icon="radio_button_checked"
-                     :value="item.type" off-icon="radio_button_unchecked"></v-radio>
+          <v-select :items="category" :label="$t('form.category')" :rules="categoryRules" dense outlined
+                    :item-text="categoryName" item-value="id" v-model="category_id" required></v-select>
+
+          <v-radio-group v-model="currency" row :label="$t('form.currency')" :rules="currencyRules" dense>
+            <v-radio v-for="item in currenciesUser" :key="item.CharCode" :label="item.CharCode" on-icon="radio_button_checked"
+                     :value="item.CharCode" off-icon="radio_button_unchecked"></v-radio>
           </v-radio-group>
 
-          <v-radio-group v-model="type" row :label="$t('form.type')" :rules="typeRules" dense outlined>
+          <v-radio-group v-model="type" row :label="$t('form.type')" :rules="typeRules" dense>
             <v-radio v-for="item in types" :key="item.type" :label="item.label" on-icon="radio_button_checked"
                      :value="item.type" off-icon="radio_button_unchecked"></v-radio>
           </v-radio-group>
 
-          <v-text-field type="number" :label="$t('form.amount')" :rules="amountRules" v-model="amount" dense outlined
-                        required></v-text-field>
-          <v-text-field :label="$t('form.description')" maxlength="255" v-model="description" dense outlined></v-text-field>
-
+          <v-text-field type="number" :label="$t('form.amount')" :rules="amountRules" v-model="amount" dense
+                        required outlined />
+          <v-text-field :label="$t('form.description')" maxlength="255" v-model="description" dense outlined />
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -69,40 +71,37 @@
 export default {
   data () {
     return {
-      date: new Date().toISOString().substr(0, 10),
-      dateFormatted: this.saveDate(new Date().toISOString().substr(0, 10)),
+      date: this.$moment().format('YYYY-MM-DD'),
+      dateFormatted: this.saveDate(this.$moment().format('YYYY-MM-DD')),
       menu: false,
-      time: new Date().toTimeString().substr(0, 5),
+      time: this.$moment().format('HH:mm'),
       menu2: false,
-      category_id: '',
+      bill_id: null,
+      category_id: null,
+      billRules: [
+        v => !!v || this.$i18n.t('form.errors.billRequired')
+      ],
       categoryRules: [
         v => !!v || this.$i18n.t('form.errors.categoryRequired')
       ],
-      currency: 'rub',
-      currencies: [
-        { type: 'rub', label: 'RUB' },
-        { type: 'usd', label: 'USD' },
-        { type: 'eur', label: 'EUR' }
-      ],
+      currency: this.$store.getters.mainCurrency?.CharCode,
       currencyRules: [
         v => !!v || this.$i18n.t('form.errors.currencyRequired')
       ],
       type: 'income',
       types: [
-        { type: 'income', label: 'Доход' },
-        { type: 'outcome', label: 'Расход' }
+        { type: 'income', label: this.$i18n.t('history.chart.income') },
+        { type: 'outcome', label: this.$i18n.t('history.chart.outcome') }
       ],
       typeRules: [
         v => !!v || this.$i18n.t('form.errors.typeRequired'),
       ],
       amount: 0,
+      convertAmount: 0,
       amountRules: [
         v => !!v || this.$i18n.t('form.errors.amountRequired'),
         v => (v > 0) || this.$i18n.t('form.errors.amountAboveZero'),
-        v => (this.type === 'outcome' ? (this.currency === 'rub' ? (v < this.$store.getters.profile.balanceRUB)
-            || this.$i18n.t('form.errors.amountInsufficient') : (this.currency === 'usd' ? (v < this.$store.getters.profile.balanceUSD)
-            || this.$i18n.t('form.errors.amountInsufficient') : ((v < this.$store.getters.profile.balanceEUR)
-            || this.$i18n.t('form.errors.amountInsufficient')))) : true)
+        v => this.checkAmount(this.currencies, this.type, v, this.bill_id, this.currency) || this.$i18n.t('form.errors.amountInsufficient')
       ],
       description: '',
       valid: false
@@ -110,51 +109,119 @@ export default {
   },
   computed: {
     loading () {
-      return this.$store.getters.category === null
+      return this.$store.getters.loadingCategory || this.$store.getters.loadingMainCurrency
+          || this.$store.getters.loadingCurrencyUser || this.$store.getters.loadingCurrency
+          || this.$store.getters.loadingProfile
     },
     category () {
       return this.$store.getters.category
-    }
+    },
+    currenciesUser () {
+      return this.$store.getters.currenciesUser;
+    },
+    currencies () {
+      return this.$store.getters.currencies;
+    },
+    profile () {
+      return this.$store.getters.profile
+    },
   },
   watch: {
     date () {
       this.dateFormatted = this.saveDate(this.date)
+    },
+    bill_id () {
+      this.$refs.form.validate()
+    },
+    currency () {
+      this.$refs.form.validate()
+    },
+    type () {
+      this.$refs.form.validate()
     }
   },
   methods: {
+    checkAmount (allCurrencies, type, balance, bill_id, current_currency) {
+      if (bill_id !== null) {
+        let currencyArr = Object.values(allCurrencies.Valute);
+        let infoBill = this.$store.getters.profileById(bill_id);
+
+        if (infoBill.currency === current_currency) {
+          this.convertAmount = parseFloat(balance)
+        } else if (current_currency === 'RUB' && infoBill.currency !== 'RUB') {
+          let currencyItem = currencyArr.find(item => item.CharCode === infoBill.currency)
+
+          if (parseFloat(balance) > 0) {
+            this.convertAmount = parseFloat(balance) / (currencyItem.Value / currencyItem.Nominal)
+          } else {
+            this.convertAmount = 0
+          }
+        } else if (current_currency !== 'RUB' && infoBill.currency === 'RUB') {
+          let mainCurrencyObj = currencyArr.find(item => item.CharCode === current_currency)
+
+          this.convertAmount = parseFloat(balance) * (mainCurrencyObj.Value / mainCurrencyObj.Nominal)
+        } else {
+          let mainCurrencyObj = currencyArr.find(item => item.CharCode === current_currency)
+          let currencyItem = currencyArr.find(item => item.CharCode === infoBill.currency)
+
+          if (parseFloat(balance) > 0) {
+            this.convertAmount = (parseFloat(balance) * (mainCurrencyObj.Value / mainCurrencyObj.Nominal) / (currencyItem.Value / currencyItem.Nominal))
+          } else {
+            this.convertAmount = 0
+          }
+        }
+
+        if (type === 'outcome') {
+          return this.convertAmount <= infoBill.balance
+        } else {
+          return true
+        }
+      }
+
+      return false
+    },
+    categoryName (item) {
+      return this.$i18n.t(item.title)
+    },
     saveDate (date) {
       if (!date) return null
 
-      const [year, month, day] = date.split('-')
-      return `${day}.${month}.${year}`
+      const momentDate = this.$moment(date, 'YYYY-MM-DD')
+      return momentDate.format('DD.MM.YYYY')
     },
     parseDate (date) {
       if (!date) return null
 
-      const [day, month, year] = date.split('.')
-      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+      const momentDate = this.$moment(date, 'DD.MM.YYYY')
+      return momentDate.format('YYYY-MM-DD')
     },
     onSubmit () {
       if (this.$refs.form.validate()) {
         const Event = {
           user_id: this.$store.getters.user.id,
           category_id: this.category_id,
+          bill_id: this.bill_id,
           currency: this.currency,
           type: this.type,
           amount: parseFloat(this.amount),
-          date: this.$moment(this.date + ' ' + this.time).format('X'),
+          convertAmount: parseFloat(this.convertAmount).toFixed(2),
+          date: this.$moment(this.date + ' ' + this.time).utc().format('X'),
           description: this.description
         }
 
         this.$store.dispatch('addEvent', Event).then(() => {
           this.$refs.form.reset()
 
-          this.date = new Date().toISOString().substr(0, 10)
-          this.dateFormatted = this.saveDate(new Date().toISOString().substr(0, 10))
-          this.time = new Date().toTimeString().substr(0, 5)
-          this.currency = 'rub'
+          this.date = this.$moment().format('YYYY-MM-DD')
+          this.dateFormatted = this.saveDate(this.$moment().format('YYYY-MM-DD'))
+          this.time = this.$moment().format('HH:mm')
+
+          this.bill_id = null
+          this.category_id = null
+          this.currency = this.$store.getters.mainCurrency?.CharCode || 'RUB'
           this.type = 'income'
           this.amount = 0
+          this.convertAmount = 0
         }).catch(() => {})
       }
     }

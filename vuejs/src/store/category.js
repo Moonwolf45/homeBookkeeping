@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { environment } from '@/environments/environment';
 import { i18n } from '@/i18n/i18n';
 
 class Category {
@@ -13,7 +12,8 @@ class Category {
 
 export default {
   state: {
-    category: null
+    category: null,
+    loadingCategory: false
   },
   mutations: {
     loadCategory (state, payload) {
@@ -22,15 +22,19 @@ export default {
       } else {
         state.category = null
       }
+    },
+    setLoadingCategory(state, payload) {
+      state.loadingCategory = payload
     }
   },
   actions: {
     async getCategory ({ commit }, payload) {
+      commit('setLoadingCategory', true)
       commit('clearError')
       const resultCategories = []
 
       try {
-        const categories = await axios.get(environment.url + '/api/v1/categories/' + payload)
+        const categories = await axios.get(process.env.VUE_APP_URL + '/api/v1/categories/' + payload)
 
         if (categories.data.length !== 0) {
           categories.data.forEach((key) => {
@@ -40,10 +44,10 @@ export default {
           })
 
           resultCategories.sort(function (a, b) {
-            if (a.title > b.title) {
+            if (i18n.t(a.title) > i18n.t(b.title)) {
               return 1
             }
-            if (a.title < b.title) {
+            if (i18n.t(a.title) < i18n.t(b.title)) {
               return -1
             }
             return 0
@@ -51,6 +55,7 @@ export default {
         }
 
         commit('loadCategory', resultCategories)
+        commit('setLoadingCategory', false)
       } catch (err) {
         if (err.response.data) {
           commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
@@ -61,23 +66,26 @@ export default {
         throw err
       }
     },
+    setLoadingCategory ({ commit }, payload) {
+      commit('setLoadingCategory', payload)
+    },
     async createCategory ({ commit, getters }, payload) {
       commit('clearError')
       commit('setLoading', true)
       const resultCategories = getters.category
 
       try {
-        const category = await axios.post(environment.url + '/api/v1/categories', payload)
+        const category = await axios.post(process.env.VUE_APP_URL + '/api/v1/categories', payload)
 
         resultCategories.push(
           new Category(category.data.user_id, category.data.title, category.data.color, category.data.id)
         )
 
         resultCategories.sort(function (a, b) {
-          if (a.title > b.title) {
+          if (i18n.t(a.title) > i18n.t(b.title)) {
             return 1
           }
-          if (a.title < b.title) {
+          if (i18n.t(a.title) < i18n.t(b.title)) {
             return -1
           }
           return 0
@@ -85,15 +93,15 @@ export default {
 
         commit('loadCategory', resultCategories)
         commit('setMessage', { status: 'success', message: i18n.t('records.category.add_success') })
-      } catch (err) {
         commit('setLoading', false)
-
+      } catch (err) {
         if (err.response.data) {
           commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
         } else {
           console.log(err)
         }
 
+        commit('setLoading', false)
         throw err
       }
     },
@@ -103,7 +111,7 @@ export default {
       const categories = getters.category
 
       try {
-        const editCategory = await axios.patch(environment.url + '/api/v1/categories/' + payload.id, payload)
+        const editCategory = await axios.patch(process.env.VUE_APP_URL + '/api/v1/categories/' + payload.id, payload)
 
         categories.forEach((element) => {
           if (element.id === editCategory.data.id) {
@@ -114,10 +122,10 @@ export default {
         });
 
         categories.sort(function (a, b) {
-          if (a.title > b.title) {
+          if (i18n.t(a.title) > i18n.t(b.title)) {
             return 1
           }
-          if (a.title < b.title) {
+          if (i18n.t(a.title) < i18n.t(b.title)) {
             return -1
           }
           return 0
@@ -125,15 +133,15 @@ export default {
 
         commit('loadCategory', categories)
         commit('setMessage', { status: 'success', message: i18n.t('records.category.edit_success') })
-      } catch (err) {
         commit('setLoading', false)
-
+      } catch (err) {
         if (err.response.data) {
           commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
         } else {
           console.log(err)
         }
 
+        commit('setLoading', false)
         throw err
       }
     }
@@ -141,6 +149,9 @@ export default {
   getters: {
     category (state) {
       return state.category
+    },
+    loadingCategory (state) {
+      return state.loadingCategory
     },
     categoryById (state) {
       return catId => {

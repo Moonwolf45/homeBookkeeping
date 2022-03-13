@@ -48,6 +48,8 @@ $config = [
             'decimalSeparator' => ',',
             'thousandSeparator' => ' ',
             'currencyCode' => 'RUB',
+            'defaultTimeZone' => 'UTC',
+            'timeZone' => 'Asia/Yekaterinburg'
         ],
         'request' => [
             'cookieValidationKey' => 'd49ipDXNBI0afLqoza9dkfYng6bPycKB',
@@ -86,7 +88,7 @@ $config = [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning', 'info'],
                     'categories' => ['api'],
-                    'logFile' => '@app/runtime/logs/api.log',
+                    'logFile' => '@runtime/logs/api_' . date('d-m-Y') . '.log',
                 ],
             ],
         ],
@@ -97,7 +99,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['api/v1/user', 'api/v1/profile', 'api/v1/category',
-                    'api/v1/event', 'api/v1/currency'],
+                    'api/v1/event', 'api/v1/planningEvent', 'api/v1/currency', 'api/v1/notification'],
                     'patterns' => [
                         'PUT,PATCH {id}' => 'update',
                         'DELETE {id}' => 'delete',
@@ -108,6 +110,10 @@ $config = [
                         '' => 'options',
                         'OPTIONS <id:\d+>/<action:[\w-]+>' => 'options',
                         'OPTIONS <action:[\w-]+>' => 'options'
+                    ],
+                    'tokens' => [
+                        '{id}' => '<id:\\w+>',
+                        '{base}' => '<id:\\w+>'
                     ],
                     'extraPatterns' => [
                         'POST registration' => 'registration',

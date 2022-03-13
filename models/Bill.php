@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -57,18 +58,27 @@ class Bill extends ActiveRecord {
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getUser(): \yii\db\ActiveQuery {
+    public function getUser(): ActiveQuery {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getIsEvent(): \yii\db\ActiveQuery {
+    public function getEvent(): ActiveQuery {
+        return $this->hasMany(Event::class, ['bill_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[User]].
+     *
+     * @return ActiveQuery
+     */
+    public function getCountEvent(): ActiveQuery {
         return $this->hasMany(Event::class, ['bill_id' => 'id']);
     }
 }

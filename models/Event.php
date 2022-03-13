@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -15,6 +16,7 @@ use yii\db\ActiveRecord;
  * @property string $currency
  * @property int $type
  * @property float $amount
+ * @property float $convertAmount
  * @property int $date
  * @property string|null $description
  *
@@ -45,7 +47,7 @@ class Event extends ActiveRecord {
         return [
             [['user_id', 'category_id', 'bill_id', 'amount', 'date'], 'required'],
             [['user_id', 'category_id', 'bill_id', 'type', 'date'], 'integer'],
-            [['amount'], 'number'],
+            [['amount', 'convertAmount'], 'number'],
             [['description', 'currency'], 'string'],
             [['currency'], 'default', 'value' => Currency::DEFAULT_CURRENCY['RUB']['CharCode']],
             [['bill_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bill::class,
@@ -69,6 +71,7 @@ class Event extends ActiveRecord {
             'currency' => 'Currency',
             'type' => 'Type',
             'amount' => 'Amount',
+            'convertAmount' => 'Convert Amount',
             'date' => 'Date',
             'description' => 'Description',
         ];
@@ -77,27 +80,27 @@ class Event extends ActiveRecord {
     /**
      * Gets query for [[Bill]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getBill(): \yii\db\ActiveQuery {
+    public function getBill(): ActiveQuery {
         return $this->hasOne(Bill::class, ['id' => 'bill_id']);
     }
 
     /**
      * Gets query for [[Category]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getCategory(): \yii\db\ActiveQuery {
+    public function getCategory(): ActiveQuery {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getUser(): \yii\db\ActiveQuery {
+    public function getUser(): ActiveQuery {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 }

@@ -4,16 +4,25 @@
 
     <v-card-text>
       <v-form ref="form" v-model="valid" lazy-validation>
-        <v-text-field prepend-icon="account_box" :label="$t('form.username')" type="text" v-model="username" />
+        <v-text-field prepend-icon="account_box" :label="$t('form.username')" type="text" v-model="username" outlined />
         <v-text-field prepend-icon="contact_mail" :label="$t('form.email')" type="email" :rules="emailRules"
-                      v-model="email" required />
+                      v-model="email" required outlined />
+
+        <v-autocomplete prepend-icon="access_time" v-model="timeZone" :items="arrTimeZone" chips dense
+                        :label="$t('form.timZone')" :filter="filter" required></v-autocomplete>
+
         <v-text-field prepend-icon="lock" :label="$t('form.password')" required :counter="6" :rules="passwordRules"
-                      :type="showPassword ? 'text' : 'password'" v-model="password"
+                      :type="showPassword ? 'text' : 'password'" v-model="password" outlined
                       @click:append="showPassword = !showPassword" :append-icon="showPassword ? 'visibility' : 'visibility_off'" />
-        <v-text-field prepend-icon="lock" :label="$t('form.confirmPassword')" required :counter="6"
+
+        <v-text-field prepend-icon="lock" :label="$t('form.confirmPassword')" required :counter="6" outlined
                       :type="showConfirmPassword ? 'text' : 'password'" :rules="passwordConfirmRules"
                       v-model="confirmPassword" @click:append="showConfirmPassword = !showConfirmPassword"
                       :append-icon="showConfirmPassword ? 'visibility' : 'visibility_off'" />
+
+        <vue-recaptcha ref="recaptcha" :sitekey="process.env.VUE_APP_KEY_SITE" :loadRecaptchaScript="true"
+                       :language="this.$root.$i18n.locale" @verify="verifyRecaptcha" @expired="onCaptchaExpired" />
+
         <v-checkbox prepend-icon="login" type="checkbox" name="loginAfterRegistration" v-model="loginAfterRegistration"
                     :label="$t('form.loginAfterRegistration')" off-icon="check_box_outline_blank" on-icon="check_box" />
       </v-form>
@@ -35,6 +44,9 @@
 </template>
 
 <script>
+import { TIMEZONE } from '../../helper/timeZone';
+import { VueRecaptcha } from 'vue-recaptcha';
+
 export default {
   data () {
     return {
@@ -44,6 +56,8 @@ export default {
       showPassword: false,
       confirmPassword: '',
       showConfirmPassword: false,
+      timeZone: this.$jstz.determine().name(),
+      arrTimeZone: TIMEZONE,
       loginAfterRegistration: true,
       valid: false,
       emailRules: [
@@ -67,13 +81,16 @@ export default {
     }
   },
   methods: {
+    filter (item, queryText) {
+      return (item.text || '').toLowerCase().indexOf((queryText || '').toLowerCase()) > -1
+    },
     onSubmit () {
       if (this.$refs.form.validate()) {
         const user = {
           username: this.username,
           email: this.email,
           password: this.password,
-          loginAfterRegistration: this.loginAfterRegistration
+          timeZone: this.timeZone
         }
 
         this.$store.dispatch('registerUser', user).then(() => {
@@ -86,7 +103,16 @@ export default {
           }
         }).catch(() => {})
       }
+    },
+    verifyRecaptcha () {
+
+    },
+    onCaptchaExpired () {
+      // this.$refs.recaptcha.reset()
     }
+  },
+  components: {
+    VueRecaptcha
   }
 }
 </script>

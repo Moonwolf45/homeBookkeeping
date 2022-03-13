@@ -32,6 +32,8 @@ class m210108_170310_create_planning_events_table extends Migration {
         $this->createIndex('idx-planning_events-category_id', '{{%planning_events}}', 'category_id');
         $this->addForeignKey('fk-planning_events-category_id', '{{%planning_events}}', 'category_id',
             '{{%categories}}', 'id', 'CASCADE');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -45,5 +47,7 @@ class m210108_170310_create_planning_events_table extends Migration {
         $this->dropIndex('idx-planning_events-user_id', '{{%planning_events}}');
 
         $this->dropTable('{{%planning_events}}');
+
+        Yii::$app->cache->flush();
     }
 }

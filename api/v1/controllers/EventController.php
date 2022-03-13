@@ -3,8 +3,8 @@
 namespace app\api\v1\controllers;
 
 
+use app\models\Bill;
 use app\models\Event;
-use app\models\Profile;
 use Yii;
 use yii\caching\TagDependency;
 use yii\web\HttpException;
@@ -19,41 +19,47 @@ class EventController extends AllApiController {
      */
     public function actions (): array {
         $actions = parent::actions();
-        unset($actions['index'], $actions['create']);
+        unset($actions['index'], $actions['create'], $actions['update'], $actions['delete']);
 
         return $actions;
     }
 
     public function actionIndex(): Response {
-        $income = [];
-        $outcome = [];
-
         $filter = Yii::$app->getRequest()->getQueryParams();
 
-        $query = Event::find()->joinWith('category')->where([Event::tableName() . '.user_id' => $filter['user_id']])
-            ->andWhere(['between', Event::tableName() . '.date', $filter['dataFrom'], $filter['dataTo']]);
-        if ($filter['categories'] != 'all') {
+        $query = Event::find()->joinWith('category')->joinWith('bill')->where([Event::tableName()
+            . '.user_id' => $filter['user_id']])->andWhere(['between', Event::tableName() . '.date', $filter['dataFrom'],
+            $filter['dataTo']]);
 
+        if ($filter['bills']) {
+            $query->andWhere([Event::tableName() . '.bill_id' => $filter['bills']]);
         }
 
-        if ($filter['type'] != 'all') {
-
+        if ($filter['categories']) {
+            $query->andWhere([Event::tableName() . '.category_id' => $filter['categories']]);
         }
+
+        if ($filter['currencies']) {
+            $arrCur = '';
+
+            $last = count($filter['currencies']);
+            foreach ($filter['currencies'] as $key => $currency) {
+                $arrCur .= Event::tableName() . '.currency = ' . '"' . $currency . '"';
+
+                if ($key != $last - 1) {
+                    $arrCur .= ' OR ';
+                }
+            }
+            $query->andWhere($arrCur);
+        }
+
+        if ($filter['types']) {
+            $query->andWhere(['type' => $filter['types']]);
+        }
+
         $events = $query->orderBy([Event::tableName() . '.date' => SORT_DESC])->asArray()->all();
 
-        foreach ($events as $event) {
-            if ($event['type'] == Event::TYPE_INCOME) {
-                $income[$event['category_id']]['label'] = $event['category']['title'];
-                $income[$event['category_id']]['color'] = $event['category']['color'];
-                $income[$event['category_id']]['total'] += $event['amount'];
-            } else if ($event['type'] == Event::TYPE_OUTCOME) {
-                $outcome[$event['category_id']]['label'] = $event['category']['title'];
-                $outcome[$event['category_id']]['color'] = $event['category']['color'];
-                $outcome[$event['category_id']]['total'] += $event['amount'];
-            }
-        }
-
-        return $this->asJson(['events' => $events, 'income' => $income, 'outcome' => $outcome]);
+        return $this->asJson(['events' => $events]);
     }
 
     /**
@@ -67,44 +73,33 @@ class EventController extends AllApiController {
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $model->user_id = $event['user_id'];
+            $model->bill_id = $event['bill_id'];
             $model->category_id = $event['category_id'];
-            $model->currency = Event::CURRENCY_ARRAY[$event['currency']];
+            $model->currency = $event['currency'];
             $model->type = Event::TYPE_ARRAY[$event['type']];
             $model->amount = $event['amount'];
+            $model->convertAmount = $event['convertAmount'];
             $model->date = $event['date'];
             $model->description = $event['description'];
             if ($model->validate() && $model->save()) {
-                $profile = Profile::find()->where(['user_id' => $event['user_id']])->one();
-                switch ($event['currency']) {
-                    case 'rub':
-                        if ($event['type'] == 'income') {
-                            $profile['balanceRUB'] += $event['amount'];
-                        } else {
-                            $profile['balanceRUB'] -= $event['amount'];
-                        }
-                    break;
+                $bill = Bill::findOne(['id' => $event['bill_id']]);
 
-                    case 'usd':
-                        if ($event['type'] == 'income') {
-                          $profile['balanceUSD'] += $event['amount'];
-                        } else {
-                          $profile['balanceUSD'] -= $event['amount'];
-                        }
-                    break;
-
-                    case 'eur':
-                        if ($event['type'] == 'income') {
-                            $profile['balanceEUR'] += $event['amount'];
-                        } else {
-                            $profile['balanceEUR'] -= $event['amount'];
-                        }
-                    break;
+                if ($event['type'] == 'income') {
+                    $bill->balance += $event['convertAmount'];
+                } else {
+                    $bill->balance -= $event['convertAmount'];
                 }
-                $profile->save();
-                TagDependency::invalidate(Yii::$app->cache, 'profile_' . $event['user_id']);
 
-                $transaction->commit();
-                return $this->asJson($model);
+                if ($bill->validate() && $bill->save()) {
+                    TagDependency::invalidate(Yii::$app->cache, 'profile_' . $event['user_id']);
+
+                    $transaction->commit();
+                    return $this->asJson($model);
+                } else {
+                    $transaction->rollBack();
+
+                    throw new HttpException(422, $bill->errors);
+                }
             }
 
             throw new HttpException(422, $model->errors);
@@ -115,4 +110,68 @@ class EventController extends AllApiController {
         }
     }
 
+     /**
+     * @param $id
+     *
+     * @return Response
+     * @throws HttpException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionUpdate($id): Response {
+        $event = Event::findOne(['id' => $id]);
+
+        $updateEvent = Yii::$app->getRequest()->getBodyParams();
+        try {
+            $event->category_id = $updateEvent['category_id'];
+            $event->description = $updateEvent['description'];
+            if ($event->validate() && $event->save()) {
+                return $this->asJson($event);
+            }
+
+            throw new HttpException(422, $event->errors);
+        } catch (\Throwable $e) {
+            throw new HttpException($e->getCode(), 'server.errors.unknownError');
+        }
+    }
+
+    /**
+     * @param $id
+     *
+     * @return Response
+     * @throws HttpException
+     */
+    public function actionDelete($id): Response {
+        $event = Event::findOne(['id' => $id]);
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $bill = Bill::findOne(['id' => $event['bill_id']]);
+
+            if ($event['type'] == 'income') {
+                $bill->balance -= $event['convertAmount'];
+            } else {
+                $bill->balance += $event['convertAmount'];
+            }
+
+            if ($bill->validate() && $bill->save()) {
+                $eventDeleteElement = $event;
+                if ($event->delete() > 0) {
+                    TagDependency::invalidate(Yii::$app->cache, 'profile_' . $event['user_id']);
+
+                    $transaction->commit();
+
+                    Yii::$app->getResponse()->setStatusCode(204);
+                    return $this->asJson($eventDeleteElement);
+                }
+            } else {
+                $transaction->rollBack();
+
+                throw new HttpException(422, $bill->errors);
+            }
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+
+            throw new HttpException($e->getCode(), 'server.errors.unknownError');
+        }
+    }
 }

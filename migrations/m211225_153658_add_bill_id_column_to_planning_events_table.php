@@ -16,6 +16,8 @@ class m211225_153658_add_bill_id_column_to_planning_events_table extends Migrati
         $this->createIndex('idx-planning_events-bill_id', '{{%planning_events}}', 'bill_id');
         $this->addForeignKey('fk-planning_events-bill_id', '{{%planning_events}}', 'bill_id', '{{%bills}}',
             'id', 'CASCADE');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -26,5 +28,7 @@ class m211225_153658_add_bill_id_column_to_planning_events_table extends Migrati
         $this->dropForeignKey('fk-planning_events-bill_id', '{{%planning_events}}');
 
         $this->dropColumn('{{%planning_events}}', 'bill_id');
+
+        Yii::$app->cache->flush();
     }
 }

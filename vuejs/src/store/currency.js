@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { environment } from '@/environments/environment';
 import { i18n } from '@/i18n/i18n';
 
 class Currency {
@@ -15,24 +14,24 @@ class Currency {
 export default {
   state: {
     currency: null,
+    loadingCurrency: true,
     currencyAll: null,
+    loadingCurrencyAll: true,
     currencyUser: null,
+    loadingCurrencyUser: true,
     mainCurrency: null,
+    loadingMainCurrency: true
   },
   mutations: {
-    loadCurrencyUser (state, payload) {
-      if (payload !== null) {
-        state.currencyUser = payload
-      } else {
-        state.currencyUser = null
-      }
-    },
     loadCurrency (state, payload) {
       if (payload !== null) {
         state.currency = payload
       } else {
         state.currency = null
       }
+    },
+    setLoadingCurrency (state, payload) {
+      state.loadingCurrency = payload
     },
     loadAllCurrency (state, payload) {
       if (payload !== null) {
@@ -41,6 +40,19 @@ export default {
         state.currencyAll = null
       }
     },
+    setLoadingCurrencyAll (state, payload) {
+      state.loadingCurrencyAll = payload
+    },
+    loadCurrencyUser (state, payload) {
+      if (payload !== null) {
+        state.currencyUser = payload
+      } else {
+        state.currencyUser = null
+      }
+    },
+    setLoadingCurrencyUser (state, payload) {
+      state.loadingCurrencyUser = payload
+    },
     loadMainCurrency (state, payload) {
       if (payload !== null) {
         state.mainCurrency = payload
@@ -48,14 +60,77 @@ export default {
         state.mainCurrency = null
       }
     },
+    setLoadingMainCurrency (state, payload) {
+      state.loadingMainCurrency = payload
+    }
   },
   actions: {
+    async getCurrency ({ commit, getters }) {
+      commit('setLoadingCurrency', true)
+      commit('clearError')
+      const mainCurrency = getters.mainCurrency.CharCode;
+
+      try {
+        const currency = await axios.get(process.env.VUE_APP_URL + '/api/v1/profiles/currency?base=' + mainCurrency)
+
+        commit('loadCurrency', currency.data)
+        commit('setLoadingCurrency', false)
+      } catch (err) {
+        if (err.response.data) {
+          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
+        } else {
+          console.log(err)
+        }
+
+        throw err
+      }
+    },
+    setLoadingCurrency ({ commit }, payload) {
+      commit('setLoadingCurrency', payload)
+    },
+    async getAllCurrency ({ commit, getters }) {
+      commit('setLoadingCurrencyAll', true)
+      commit('clearError')
+      const resultAllCurrencies = []
+
+      try {
+        const currencies = await axios.get(process.env.VUE_APP_URL + '/api/v1/currencies/all-currency')
+
+        if (currencies.data.length !== 0) {
+          let user = getters.user;
+          let counter = 0;
+          for (let key in currencies.data) {
+            resultAllCurrencies.push(
+              new Currency(user.id, currencies.data[key].CharCode, currencies.data[key].Name,
+                           currencies.data[key].locale, counter)
+            )
+            counter++;
+          }
+        }
+
+        commit('loadAllCurrency', resultAllCurrencies)
+        commit('setLoadingCurrencyAll', false)
+      } catch (err) {
+        if (err.response.data) {
+          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
+        } else {
+          console.log(err)
+        }
+
+        throw err
+      }
+    },
+    setLoadingCurrencyAll ({ commit }, payload) {
+      commit('setLoadingCurrencyAll', payload)
+    },
     async getCurrencyUser ({ commit }, payload) {
+      commit('setLoadingCurrencyUser', true)
+      commit('setLoadingMainCurrency', true)
       commit('clearError')
       const resultCurrencies = []
 
       try {
-        const currencies = await axios.get(environment.url + '/api/v1/currencies/' + payload)
+        const currencies = await axios.get(process.env.VUE_APP_URL + '/api/v1/currencies/' + payload)
 
         if (currencies.data.currency.length !== 0) {
           let user_id = currencies.data.user_id;
@@ -66,10 +141,12 @@ export default {
           })
 
           commit('loadMainCurrency', new Currency(user_id, currencies.data.mainCurrency.CharCode,
-            currencies.data.mainCurrency.Name, currencies.data.mainCurrency.locale))
+            currencies.data.mainCurrency.Name, currencies.data.mainCurrency.locale, currencies.data.id))
+          commit('setLoadingMainCurrency', false)
         }
 
         commit('loadCurrencyUser', resultCurrencies)
+        commit('setLoadingCurrencyUser', false)
       } catch (err) {
         if (err.response.data) {
           commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
@@ -80,66 +157,37 @@ export default {
         throw err
       }
     },
-    async getCurrency ({ commit }) {
-      commit('clearError')
-
-      try {
-        const currency = await axios.get(environment.url + '/api/v1/profiles/currency')
-
-        commit('loadCurrency', currency.data)
-      } catch (err) {
-        if (err.response.data) {
-          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
-        } else {
-          console.log(err)
-        }
-
-        throw err
-      }
+    setLoadingCurrencyUser ({ commit }, payload) {
+      commit('setLoadingCurrencyUser', payload)
     },
-    async getAllCurrency ({ commit, getters }) {
-      commit('clearError')
-      const resultAllCurrencies = []
-
-      try {
-        const currencies = await axios.get(environment.url + '/api/v1/currencies/all-currency')
-
-        if (currencies.data.length !== 0) {
-          let user = getters.user;
-          let counter = 0;
-          for (let key in currencies.data) {
-            resultAllCurrencies.push(
-              new Currency(user.id, currencies.data[key].CharCode, currencies.data[key].Name,
-                currencies.data[key].locale, counter)
-            )
-            counter++;
-          }
-        }
-
-        commit('loadAllCurrency', resultAllCurrencies)
-      } catch (err) {
-        if (err.response.data) {
-          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
-        } else {
-          console.log(err)
-        }
-
-        throw err
-      }
+    setLoadingMainCurrency ({ commit }, payload) {
+      commit('setLoadingMainCurrency', payload)
     }
   },
   getters: {
     currencies (state) {
       return state.currency
     },
-    mainCurrency (state) {
-      return state.mainCurrency
+    loadingCurrency (state) {
+      return state.loadingCurrency
+    },
+    currenciesAll (state) {
+      return state.currencyAll
+    },
+    loadingCurrencyAll (state) {
+      return state.loadingCurrencyAll
     },
     currenciesUser (state) {
       return state.currencyUser
     },
-    currenciesAll (state) {
-      return state.currencyAll
-    }
+    loadingCurrencyUser (state) {
+      return state.loadingCurrencyUser
+    },
+    mainCurrency (state) {
+      return state.mainCurrency
+    },
+    loadingMainCurrency (state) {
+      return state.loadingMainCurrency
+    },
   }
 }

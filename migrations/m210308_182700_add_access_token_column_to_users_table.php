@@ -14,6 +14,8 @@ class m210308_182700_add_access_token_column_to_users_table extends Migration {
         $this->addColumn('{{%users}}','access_token', Schema::TYPE_STRING . ' NULL DEFAULT NULL');
 
         $this->createIndex('idx-users-access_token', '{{%users}}', 'access_token');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -23,5 +25,7 @@ class m210308_182700_add_access_token_column_to_users_table extends Migration {
         $this->dropIndex('idx-users-access_token', '{{%users}}');
 
         $this->dropColumn('{{%users}}','access_token');
+
+        Yii::$app->cache->flush();
     }
 }

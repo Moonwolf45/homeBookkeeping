@@ -18,7 +18,7 @@ class CategoryController extends AllApiController {
      */
     public function actions (): array {
         $actions = parent::actions();
-        unset($actions['create'], $actions['update'], $actions['view']);
+        unset($actions['create'], $actions['update'], $actions['view'], $actions['delete']);
 
         return $actions;
     }

@@ -4,6 +4,7 @@ namespace app\models;
 
 
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -88,27 +89,27 @@ class Category extends ActiveRecord {
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getUser (): \yii\db\ActiveQuery {
+    public function getUser (): ActiveQuery {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**
      * Gets query for [[Events]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getEvents (): \yii\db\ActiveQuery {
+    public function getEvents (): ActiveQuery {
         return $this->hasMany(Event::class, ['category_id' => 'id']);
     }
 
     /**
      * Gets query for [[PlanningEvents]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getPlanningEvents (): \yii\db\ActiveQuery {
+    public function getPlanningEvents (): ActiveQuery {
         return $this->hasMany(PlanningEvent::class, ['category_id' => 'id']);
     }
 }

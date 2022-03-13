@@ -16,19 +16,18 @@
               </tr>
             </thead>
 
-            <tbody v-if="currencies !== null && currenciesUser !== null">
+            <tbody>
               <tr v-for="currencyItem in currenciesUser" :key="currencyItem.id">
-                <td>{{ $t(currencyItem.Name) }}</td>
-                <td v-if="currencyItem.CharCode === 'RUB'">
-                  {{ new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB',
-                    minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(1) }}
-                </td>
-                <td v-else>
-                  {{ new Intl.NumberFormat(currencyItem.locale, { style: 'currency', currency: currencyItem.CharCode,
-                    minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(currencies.Valute[currencyItem.CharCode].Value / currencies.Valute[currencyItem.CharCode].Nominal)
-                  }}
-                </td>
-                <td>{{ $moment(currencies.Date).format('DD.MM.YYYY HH:mm') }}</td>
+                <template v-if="currencyItem.CharCode !== 'RUB'">
+                  <td>{{ $t(currencyItem.Name) }}</td>
+                  <td>
+                    {{ new Intl.NumberFormat(mainCurrency !== null ? mainCurrency.locale : 'ru-RU', { style: 'currency',
+                    currency: mainCurrency !== null ? mainCurrency.CharCode : 'RUB', minimumFractionDigits: 2,
+                    maximumFractionDigits: 2 }).format(getCurrencyFormat(currencyItem.CharCode))
+                    }}
+                  </td>
+                  <td>{{ $moment(currencies.PreviousDate).format('DD.MM.YYYY HH:mm') }}</td>
+                </template>
               </tr>
             </tbody>
           </v-simple-table>
@@ -39,16 +38,37 @@
 
 <script>
 export default {
-  props: ['loader'],
   data () {
     return {}
   },
   computed: {
+    loader () {
+      return this.$store.getters.loadingCurrency || this.$store.getters.loadingCurrencyUser
+        || this.$store.getters.loadingMainCurrency
+    },
     currencies () {
       return this.$store.getters.currencies
     },
     currenciesUser () {
       return this.$store.getters.currenciesUser
+    },
+    mainCurrency () {
+      return this.$store.getters.mainCurrency
+    }
+  },
+  methods: {
+    getCurrencyFormat (code) {
+      let currencyArr = Object.values(this.currencies?.Valute);
+
+      let currency = currencyArr.find(item => item.CharCode === code)
+
+      if (this.mainCurrency?.CharCode === 'RUB') {
+        return (currency.Value / currency.Nominal)
+      }
+
+      let mainCurrencyObj = currencyArr.find(item => item.CharCode === this.mainCurrency?.CharCode)
+
+      return (currency.Value / currency.Nominal) / (mainCurrencyObj.Value / mainCurrencyObj.Nominal)
     }
   }
 }

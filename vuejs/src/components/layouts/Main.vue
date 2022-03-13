@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer app permanent dark color="#3a4651" width="320">
+    <v-navigation-drawer app dark color="#3a4651" :permanent="notMobile" :width="sidebarWidth" touchless v-model="drawer">
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="title">
@@ -54,6 +54,7 @@
 
     <v-main class="content">
       <v-toolbar color="#d7dde4">
+        <v-app-bar-nav-icon v-if="!notMobile" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
         <v-spacer></v-spacer>
 
         <div class="header-block header-block-nav">
@@ -85,6 +86,9 @@
 </template>
 
 <script>
+import { initializeApp } from 'firebase/app'
+import { getMessaging, onMessage, getToken, isSupported } from "firebase/messaging";
+
 export default {
   data () {
     return {
@@ -95,6 +99,60 @@ export default {
         { path: '/records', name: 'main.recording', icon: 'add_box' },
         { path: '/settings', name: 'main.settings', icon: 'settings' }
       ],
+      drawer: document.documentElement.clientWidth >= 769,
+      notMobile: document.documentElement.clientWidth >= 769,
+      sidebarWidth: this.getWidthSidebar()
+    }
+  },
+  mounted () {
+    this.getAllNeedData()
+
+    try {
+      const firebaseApp = initializeApp({
+        apiKey: "AIzaSyBLfIKBKNQ-v4vOdCMnDH28FHbo9Pn_qn4",
+        authDomain: "homebookkeeping-a1eb2.firebaseapp.com",
+        projectId: "homebookkeeping-a1eb2",
+        storageBucket: "homebookkeeping-a1eb2.appspot.com",
+        messagingSenderId: "930154418965",
+        appId: "1:930154418965:web:0be85a050dbfba00460f1c",
+        measurementId: "G-DB4P6TCFZM"
+      });
+      const messaging = getMessaging(firebaseApp)
+
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+
+          getToken(messaging, {
+            vapidKey: "BINrS5LHig3lXbq2JJNujbUN45qWUOAQi9j7-iJWNAIaU707s6IEjml3YKzDb-va9x_wfnTx-QgvewcTHcZ7eWk",
+          }).then((token) => {
+            this.saveNotificationToken(token)
+          })
+        } else {
+          console.log('Unable to get permission to notify.');
+        }
+      });
+
+      if ("Notification" in window && isSupported()) {
+        onMessage(messaging, (payload) => {
+          console.log('Message received. ', payload);
+
+          const data = { ...payload.notification, ...payload.data };
+          const notificationTitle = data.title;
+          const notificationOptions = {
+            body: data.body,
+            icon: data.icon,
+            image: data.image,
+            requireInteraction: true,
+            click_action: data.click_action,
+            data
+          };
+
+          new Notification(notificationTitle, notificationOptions);
+        })
+      }
+    } catch (e) {
+      console.log(e)
     }
   },
   computed: {
@@ -134,29 +192,66 @@ export default {
     },
     closeError () {
       this.$store.dispatch('clearError')
+    },
+    getAllNeedData () {
+      if (this.$store.getters.currenciesAll === null) {
+        this.$store.dispatch('getAllCurrency').then(() => {}).catch(() => {});
+      }
+      if (this.$store.getters.user !== null) {
+        if (this.$store.getters.currenciesUser === null) {
+          this.$store.dispatch('getCurrencyUser', this.$store.getters.user.id).then(() => {}).catch(() => {});
+        }
+        if (this.$store.getters.currencies === null) {
+          this.$store.dispatch('getCurrency').then(() => {}).catch(() => {});
+        }
+        if (this.$store.getters.profile === null) {
+          this.$store.dispatch('getProfile', this.$store.getters.user.id).then(() => {}).catch(() => {});
+        }
+        if (this.$store.getters.category === null) {
+          this.$store.dispatch('getCategory', this.$store.getters.user.id).then(() => {}).catch(() => {});
+        }
+      }
+    },
+    saveNotificationToken(token) {
+      const tokenBlock = {
+        user_id: this.$store.getters.user.id,
+        token: token,
+        tokenId: localStorage.getItem("sentFirebaseMessagingTokenId")
+      }
+
+      this.$store.dispatch('saveNotificationToken', tokenBlock).then(() => {}).catch(() => {});
+    },
+    getWidthSidebar() {
+      if (document.documentElement.clientWidth <= 1024) {
+        return 256
+      }
+
+      return 310
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
+  .v-application {
+    .title {
+      font-size: 1.2rem!important;
+    }
+  }
   .header-block {
     padding: .5rem 15px;
   }
-
   .header-block-nav {
     margin-left: auto;
     padding: 0 15px;
     font-weight: 700;
     color: #4f5f6f;
   }
-
   .content {
     background-color: #f0f3f6;
     box-shadow: 0 0 3px #ccc;
     transition: left 0.3s ease;
   }
-
   .container {
     padding: 55px 80px 100px 20px;
   }

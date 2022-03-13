@@ -1,20 +1,21 @@
 import axios from 'axios';
-import { environment } from '@/environments/environment';
 import { i18n } from '@/i18n/i18n';
 
 class Profile {
-  constructor (user_id, name, balance, currency, id = null) {
+  constructor (user_id, name, balance, currency, countEvent, id = null) {
     this.id = id !== null ? parseInt(id) : null;
     this.user_id = parseInt(user_id);
     this.name = name.toString();
     this.balance = parseFloat(balance);
     this.currency = currency;
+    this.countEvent = countEvent.length;
   }
 }
 
 export default {
   state: {
-    profile: null
+    profile: null,
+    loadingProfile: false
   },
   mutations: {
     setProfile (state, payload) {
@@ -23,25 +24,30 @@ export default {
       } else {
         state.profile = null
       }
+    },
+    setLoadingProfile (state, payload) {
+      state.loadingProfile = payload
     }
   },
   actions: {
     async getProfile ({ commit }, payload) {
+      commit('setLoadingProfile', true)
       commit('clearError')
       const resultBills = []
 
       try {
-        const profile = await axios.get(environment.url + '/api/v1/profiles/' + payload)
+        const profile = await axios.get(process.env.VUE_APP_URL + '/api/v1/profiles/' + payload)
 
         if (profile.data.length !== 0) {
           profile.data.forEach((key) => {
             resultBills.push(
-              new Profile(key.user_id, key.name, key.balance, key.currency, key.id)
+              new Profile(key.user_id, key.name, key.balance, key.currency, key.countEvent, key.id)
             )
           })
         }
 
         commit('setProfile', resultBills)
+        commit('setLoadingProfile', false)
       } catch (err) {
         if (err.response.data) {
           commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
@@ -52,29 +58,33 @@ export default {
         throw err
       }
     },
+    setLoadingProfile ({ commit }, payload) {
+      commit('setLoadingProfile', payload)
+    },
     async createProfile ({ commit, getters }, payload) {
       commit('clearError')
       commit('setLoading', true)
       const resultBills = getters.profile
 
       try {
-        const profile = await axios.post(environment.url + '/api/v1/profiles', payload)
+        const profile = await axios.post(process.env.VUE_APP_URL + '/api/v1/profiles', payload)
 
         resultBills.push(
-          new Profile(profile.data.user_id, profile.data.name, profile.data.balance, profile.data.currency, profile.data.id)
+          new Profile(profile.data.user_id, profile.data.name, profile.data.balance, profile.data.currency,
+                      [], profile.data.id)
         )
 
         commit('setProfile', resultBills)
         commit('setMessage', { status: 'success', message: i18n.t('records.profile.add_success') })
-      } catch (err) {
         commit('setLoading', false)
-
+      } catch (err) {
         if (err.response.data) {
           commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
         } else {
           console.log(err)
         }
 
+        commit('setLoading', false)
         throw err
       }
     },
@@ -84,11 +94,13 @@ export default {
       const resultBills = getters.profile
 
       try {
-        const editProfile = await axios.patch(environment.url + '/api/v1/profiles/' + payload.id, payload)
+        const editProfile = await axios.patch(process.env.VUE_APP_URL + '/api/v1/profiles/' + payload.id, payload)
 
         resultBills.forEach((element) => {
           if (element.id === editProfile.data.id) {
             element.name = editProfile.data.name
+            element.balance = editProfile.data.balance
+            element.currency = editProfile.data.currency
           }
         });
 
@@ -97,9 +109,8 @@ export default {
           status: 'success',
           message: i18n.t('records.profile.edit_success')
         })
-      } catch (err) {
         commit('setLoading', false)
-
+      } catch (err) {
         if (err.response.data) {
           commit('setMessage', {
             status: 'error',
@@ -109,6 +120,7 @@ export default {
           console.log(err)
         }
 
+        commit('setLoading', false)
         throw err
       }
     },
@@ -118,7 +130,7 @@ export default {
       const resultBills = getters.profile
 
       try {
-        await axios.delete(environment.url + '/api/v1/profiles/' + payload.id)
+        await axios.delete(process.env.VUE_APP_URL + '/api/v1/profiles/' + payload.id)
 
         resultBills.filter(item => item.id !== payload.id)
 
@@ -127,9 +139,8 @@ export default {
           status: 'success',
           message: i18n.t('records.profile.delete_success', { name: payload.name })
         })
-      } catch (err) {
         commit('setLoading', false)
-
+      } catch (err) {
         if (err.response.data) {
           commit('setMessage', {
             status: 'error',
@@ -139,6 +150,7 @@ export default {
           console.log(err)
         }
 
+        commit('setLoading', false)
         throw err
       }
     }
@@ -146,6 +158,9 @@ export default {
   getters: {
     profile (state) {
       return state.profile
+    },
+    loadingProfile (state) {
+      return state.loadingProfile
     },
     profileById (state) {
       return profileId => {

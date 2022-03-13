@@ -17,6 +17,8 @@ class m210404_163416_rename_profiles_table extends Migration {
         $this->dropColumn('{{%bills}}', 'balanceEUR');
 
         $this->addColumn('{{%bills}}', 'name', Schema::TYPE_STRING . '(255) NOT NULL');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -29,5 +31,7 @@ class m210404_163416_rename_profiles_table extends Migration {
         $this->renameColumn('{{%bills}}', 'balance', 'balanceRUB');
 
         $this->renameTable('{{%bills}}', '{{%profiles}}');
+
+        Yii::$app->cache->flush();
     }
 }

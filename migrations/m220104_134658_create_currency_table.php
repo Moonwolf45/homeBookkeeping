@@ -20,6 +20,8 @@ class m220104_134658_create_currency_table extends Migration {
         $this->createIndex('idx-currency-user_id', '{{%currency}}', 'user_id');
         $this->addForeignKey('fk-currency-user_id', '{{%currency}}', 'user_id',
             '{{%users}}', 'id', 'CASCADE');
+
+        Yii::$app->cache->flush();
     }
 
     /**
@@ -30,5 +32,7 @@ class m220104_134658_create_currency_table extends Migration {
         $this->dropIndex('idx-currency-user_id', '{{%currency}}');
 
         $this->dropTable('{{%currency}}');
+
+        Yii::$app->cache->flush();
     }
 }

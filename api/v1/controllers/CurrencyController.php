@@ -18,7 +18,7 @@ class CurrencyController extends AllApiController {
      */
     public function actions (): array {
         $actions = parent::actions();
-        unset($actions['create'], $actions['update'], $actions['view']);
+        unset($actions['create'], $actions['update'], $actions['view'], $actions['delete']);
 
         return $actions;
     }
@@ -32,7 +32,7 @@ class CurrencyController extends AllApiController {
     public function actionUpdate ($id): Response {
         $changeCurrency = Yii::$app->getRequest()->getBodyParams();
 
-        $editCurrency = Currency::find()->where(['user_id' => $id])->asArray()->one();
+        $editCurrency = Currency::findOne(['user_id' => $id]);
         $editCurrency->string_currency = $changeCurrency['name'];
         if ($editCurrency->validate() && $editCurrency->save()) {
             TagDependency::invalidate(Yii::$app->cache, 'currency_' . $editCurrency->user_id);

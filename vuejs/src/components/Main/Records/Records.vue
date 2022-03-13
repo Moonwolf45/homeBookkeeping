@@ -25,9 +25,9 @@
 </template>
 
 <script>
-import addEvent from '@/components/Main/Records/addEvent';
-import addCategory from '@/components/Main/Records/addCategory';
-import editCategory from '@/components/Main/Records/editCategory';
+import addEvent from './../Records/addEvent';
+import addCategory from './../Records/addCategory';
+import editCategory from './../Records/editCategory';
 
 export default {
   data () {
@@ -42,12 +42,19 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.main_title {
-  float: left;
-  font-size: 1.45rem;
-  line-height: 1.1;
-  font-weight: 600;
-  margin: 0;
-  color: #4f5f6f;
+.title-block {
+  overflow: hidden;
+  padding-bottom: 15px;
+  margin: 0 0 30px 0;
+  border-bottom: 1px solid #d7dde4;
+
+  .main_title {
+    float: left;
+    font-size: 1.45rem;
+    line-height: 1.1;
+    font-weight: 600;
+    margin: 0;
+    color: #4f5f6f;
+  }
 }
 </style>

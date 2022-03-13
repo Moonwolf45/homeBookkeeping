@@ -6,7 +6,7 @@
       <v-card-text>
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-text-field prepend-icon="contact_mail" :label="$t('form.email')" type="email" :rules="emailRules"
-                        v-model="email" required/>
+                        v-model="email" required outlined />
 
           <div class="v-text-field__details" v-if="notEmail">
             <div class="v-messages theme--light error--text" role="alert">
@@ -88,14 +88,17 @@ export default {
     onSubmit () {
       if (this.$refs.form.validate()) {
         const user = {
-          email: this.email
+          email: this.email,
+          language: this.$root.$i18n.locale
         }
 
-        this.$store.dispatch('forgotPasswordUser', user).then(() => {
-          this.changePass = true
-          debounce(function () {
-            this.$router.push('/')
-          }, 2000)
+        this.$store.dispatch('forgotPasswordUser', user).then((res) => {
+          if (res.result === 'ok') {
+            this.changePass = true
+            debounce(function () {
+              this.$router.push('/')
+            }, 2000)
+          }
         }).catch(() => {})
       }
     }
