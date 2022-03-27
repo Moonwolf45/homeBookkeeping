@@ -194,21 +194,26 @@ export default {
       this.$store.dispatch('clearError')
     },
     getAllNeedData () {
-      if (this.$store.getters.currenciesAll === null) {
+      if (this.$store.getters.currenciesAll === null && this.$store.getters.loadingCurrencyAll === false) {
         this.$store.dispatch('getAllCurrency').then(() => {}).catch(() => {});
       }
       if (this.$store.getters.user !== null) {
-        if (this.$store.getters.currenciesUser === null) {
+        if (this.$store.getters.currenciesUser === null && this.$store.getters.loadingCurrencyUser === false
+            && this.$store.getters.loadingMainCurrency === false) {
           this.$store.dispatch('getCurrencyUser', this.$store.getters.user.id).then(() => {}).catch(() => {});
         }
-        if (this.$store.getters.currencies === null) {
+        if (this.$store.getters.currencies === null && this.$store.getters.loadingCurrency === false) {
           this.$store.dispatch('getCurrency').then(() => {}).catch(() => {});
         }
-        if (this.$store.getters.profile === null) {
+        if (this.$store.getters.profile === null && this.$store.getters.loadingProfile === false) {
           this.$store.dispatch('getProfile', this.$store.getters.user.id).then(() => {}).catch(() => {});
         }
-        if (this.$store.getters.category === null) {
+        if (this.$store.getters.category === null && this.$store.getters.loadingCategory === false) {
           this.$store.dispatch('getCategory', this.$store.getters.user.id).then(() => {}).catch(() => {});
+        }
+        if ((this.$store.getters.activePlanningEvents === null || this.$store.getters.nonActivePlanningEvents === null)
+            && this.$store.getters.loadingPlanningEvents === false) {
+          this.$store.dispatch('getAllPlanningEvents').then(() => {}).catch(() => {});
         }
       }
     },
@@ -216,7 +221,7 @@ export default {
       const tokenBlock = {
         user_id: this.$store.getters.user.id,
         token: token,
-        tokenId: localStorage.getItem("sentFirebaseMessagingTokenId")
+        tokenId: localStorage.getItem('sentFirebaseMessagingTokenId')
       }
 
       this.$store.dispatch('saveNotificationToken', tokenBlock).then(() => {}).catch(() => {});

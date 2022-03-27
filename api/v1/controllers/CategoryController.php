@@ -64,6 +64,7 @@ class CategoryController extends AllApiController {
             return $this->asJson($editCategory);
         }
 
+        Yii::$app->response->format = Response::FORMAT_JSON;
         throw new HttpException(400, 'server.errors.unknownError');
     }
 

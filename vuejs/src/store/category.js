@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { i18n } from '@/i18n/i18n';
+import { i18n } from '../i18n/i18n';
 
 class Category {
   constructor (user_id, title, color, id = null) {
@@ -65,9 +65,6 @@ export default {
 
         throw err
       }
-    },
-    setLoadingCategory ({ commit }, payload) {
-      commit('setLoadingCategory', payload)
     },
     async createCategory ({ commit, getters }, payload) {
       commit('clearError')

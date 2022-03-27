@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { i18n } from '@/i18n/i18n';
+import { i18n } from '../i18n/i18n';
 
 export default {
   state: {},
@@ -16,7 +16,7 @@ export default {
               localStorage.setItem('sentFirebaseMessagingId', response.data.id ? response.data.id : '');
             })
           } else {
-            await axios.post(process.env.VUE_APP_URL + '/api/v1/notifications/' + payload.tokenId, payload).then((response) => {
+            await axios.patch(process.env.VUE_APP_URL + '/api/v1/notifications/' + payload.tokenId, payload).then((response) => {
               console.log('Successfully update notification token!')
 
               localStorage.setItem('sentFirebaseMessagingToken', response.data.token ? response.data.token : '');

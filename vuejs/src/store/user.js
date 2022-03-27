@@ -1,6 +1,6 @@
 import axios from 'axios'
 import moment from 'moment-timezone';
-import { i18n } from '@/i18n/i18n'
+import { i18n } from '../i18n/i18n'
 
 class User {
   constructor (username, email, auth_key, timeZone, status, id = null) {
@@ -72,6 +72,7 @@ export default {
         await dispatch('getCurrency')
         await dispatch('getProfile', user.data.id)
         await dispatch('getCategory', user.data.id)
+        await dispatch('getAllPlanningEvents')
 
         commit('setLoading', false)
       } catch (err) {
@@ -121,8 +122,9 @@ export default {
         await dispatch('getCurrency')
         await dispatch('getProfile', JSON.parse(auth_user).id)
         await dispatch('getCategory', JSON.parse(auth_user).id)
+        await dispatch('getAllPlanningEvents')
 
-        await commit('setLoading', false)
+        commit('setLoading', false)
       }
     },
     async isUserEmailExists ({ commit }, payload) {

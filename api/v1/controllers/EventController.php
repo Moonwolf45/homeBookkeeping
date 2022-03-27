@@ -98,14 +98,17 @@ class EventController extends AllApiController {
                 } else {
                     $transaction->rollBack();
 
+                    Yii::$app->response->format = Response::FORMAT_JSON;
                     throw new HttpException(422, $bill->errors);
                 }
             }
 
+            Yii::$app->response->format = Response::FORMAT_JSON;
             throw new HttpException(422, $model->errors);
         } catch (\Throwable $e) {
             $transaction->rollBack();
 
+            Yii::$app->response->format = Response::FORMAT_JSON;
             throw new HttpException($e->getCode(), 'server.errors.unknownError');
         }
     }

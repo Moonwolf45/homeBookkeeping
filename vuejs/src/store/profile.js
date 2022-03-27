@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { i18n } from '@/i18n/i18n';
+import { i18n } from '../i18n/i18n';
 
 class Profile {
   constructor (user_id, name, balance, currency, countEvent, id = null) {
@@ -57,9 +57,6 @@ export default {
 
         throw err
       }
-    },
-    setLoadingProfile ({ commit }, payload) {
-      commit('setLoadingProfile', payload)
     },
     async createProfile ({ commit, getters }, payload) {
       commit('clearError')

@@ -41,7 +41,6 @@
             </v-col>
           </v-row>
 
-
           <v-select :items="profile" :label="$t('form.selectAccount')" :rules="billRules" dense outlined
                     item-text="name" item-value="id" v-model="bill_id" required></v-select>
 
@@ -61,6 +60,9 @@
           <v-text-field type="number" :label="$t('form.amount')" :rules="amountRules" v-model="amount" dense
                         required outlined />
           <v-text-field :label="$t('form.description')" maxlength="255" v-model="description" dense outlined />
+
+          <v-select :items="statuses" :label="$t('form.status')" :rules="statusRules" dense outlined
+                    item-text="name" item-value="id" v-model="status" required></v-select>
         </v-form>
       </v-card-text>
 
@@ -69,8 +71,11 @@
         <v-btn color="blue darken-1" text @click="closeModal()">
           {{ $t('main.close') }}
         </v-btn>
-        <v-btn color="primary" @click="onSubmit()" :loading="loading" :disabled="!valid || loading">
+        <v-btn color="primary" @click="onSubmit()" :loading="loading" :disabled="!valid || loading" v-if="event === null">
           {{ $t('form.add') }}
+        </v-btn>
+        <v-btn color="primary" @click="onEditSubmit()" :loading="loading" :disabled="!valid || loading" v-if="event !== null">
+          {{ $t('form.edit') }}
         </v-btn>
       </v-card-actions>
     </template>
@@ -79,6 +84,11 @@
 
 <script>
 export default {
+  props: {
+    event: {
+      type: Object
+    },
+  },
   data () {
     return {
       date: this.$moment().add(1, 'd').format('YYYY-MM-DD'),
@@ -86,6 +96,7 @@ export default {
       menu: false,
       time: this.$moment().format('HH:mm'),
       menu2: false,
+      id: null,
       bill_id: null,
       category_id: null,
       billRules: [
@@ -94,7 +105,7 @@ export default {
       categoryRules: [
         v => !!v || this.$i18n.t('form.errors.categoryRequired')
       ],
-      currency: this.$store.getters.mainCurrency?.CharCode,
+      currency: this.$store.getters.mainCurrency?.CharCode || 'RUB',
       currencyRules: [
         v => !!v || this.$i18n.t('form.errors.currencyRequired')
       ],
@@ -111,7 +122,15 @@ export default {
         v => !!v || this.$i18n.t('form.errors.amountRequired'),
         v => (v > 0) || this.$i18n.t('form.errors.amountAboveZero')
       ],
-      description: '',
+      description: null,
+      status: 1,
+      statuses: [
+        { id: 1, name: this.$i18n.t('form.status_on') },
+        { id: 0, name: this.$i18n.t('form.status_off') }
+      ],
+      statusRules: [
+        v => !!v || this.$i18n.t('form.errors.statusRequired'),
+      ],
       valid: false
     }
   },
@@ -134,7 +153,49 @@ export default {
       return this.$store.getters.profile
     },
   },
+  mounted () {
+    if (this.event !== null) {
+      this.id = this.event.id
+      this.date = this.parseDate(this.event.date)
+      this.dateFormatted = this.event.date
+      this.time = this.$moment(this.event.date, 'DD.MM.YYYY HH:mm').format('HH:mm')
+      this.bill_id = this.event.bill_id
+      this.category_id = this.event.category_id
+      this.currency = this.event.currency
+      this.type = this.event.type
+      this.amount = this.event.amount
+      this.description = this.event.description
+      this.status = this.event.status
+    }
+  },
   watch: {
+    event () {
+      if (this.event !== null) {
+        this.id = this.event.id
+        this.date = this.parseDate(this.event.date)
+        this.dateFormatted = this.event.date
+        this.time = this.$moment(this.event.date, 'DD.MM.YYYY HH:mm').format('HH:mm')
+        this.bill_id = this.event.bill_id
+        this.category_id = this.event.category_id
+        this.currency = this.event.currency
+        this.type = this.event.type
+        this.amount = this.event.amount
+        this.description = this.event.description
+        this.status = this.event.status
+      } else {
+        this.id = null
+        this.date = this.$moment().add(1, 'd').format('YYYY-MM-DD')
+        this.dateFormatted = this.saveDate(this.$moment().add(1, 'd').format('YYYY-MM-DD'))
+        this.time = this.$moment().format('HH:mm')
+        this.bill_id = null
+        this.category_id = null
+        this.currency = this.$store.getters.mainCurrency?.CharCode || 'RUB'
+        this.type = 'income'
+        this.amount = 0
+        this.description = null
+        this.status = 1
+      }
+    },
     date () {
       this.dateFormatted = this.saveDate(this.date)
     },
@@ -176,8 +237,9 @@ export default {
           currency: this.currency,
           type: this.type,
           amount: parseFloat(this.amount),
-          date: this.$moment(this.date + ' ' + this.time).format('X'),
-          description: this.description
+          date: this.$moment(this.date + ' ' + this.time).format('YYYY-MM-DD HH:mm'),
+          description: this.description,
+          status: this.status
         }
 
         this.$emit('callCreatePlanningEvent', PlanningEvent);
@@ -192,9 +254,42 @@ export default {
         this.currency = this.$store.getters.mainCurrency?.CharCode || 'RUB'
         this.type = 'income'
         this.amount = 0
-        this.convertAmount = 0
+        this.description = null
+        this.status = 1
       }
     },
+    onEditSubmit () {
+      if (this.$refs.form.validate()) {
+        const PlanningEvent = {
+          id: this.id,
+          user_id: this.$store.getters.user.id,
+          category_id: this.category_id,
+          bill_id: this.bill_id,
+          currency: this.currency,
+          type: this.type,
+          amount: parseFloat(this.amount),
+          date: this.$moment(this.date + ' ' + this.time).format('YYYY-MM-DD HH:mm'),
+          description: this.description,
+          status: this.status
+        }
+
+        this.$emit('callUpdatePlanningEvent', PlanningEvent);
+        this.$refs.form.reset()
+
+        this.date = this.$moment().format('YYYY-MM-DD')
+        this.dateFormatted = this.saveDate(this.$moment().format('YYYY-MM-DD'))
+        this.time = this.$moment().format('HH:mm')
+
+        this.id = null
+        this.bill_id = null
+        this.category_id = null
+        this.currency = this.$store.getters.mainCurrency?.CharCode || 'RUB'
+        this.type = 'income'
+        this.amount = 0
+        this.description = null
+        this.status = 1
+      }
+    }
   }
 }
 </script>

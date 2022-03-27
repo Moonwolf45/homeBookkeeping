@@ -31,11 +31,46 @@ class PlanningEventController extends AllApiController {
         . '.user_id' => $filter['user_id']]);
 
         $activePlanningEvents = $query->andWhere([PlanningEvent::tableName() . '.status' => PlanningEvent::STATUS_ON])
-            ->orderBy([PlanningEvent::tableName() . '.date' => SORT_DESC])->asArray()->all();
+            ->orderBy([PlanningEvent::tableName() . '.date' => SORT_ASC])->asArray()->all();
         $noneActivePlanningEvents = $query->andWhere([PlanningEvent::tableName() . '.status' => PlanningEvent::STATUS_OFF])
-            ->orderBy([PlanningEvent::tableName() . '.date' => SORT_DESC])->asArray()->all();
+            ->orderBy([PlanningEvent::tableName() . '.date' => SORT_ASC])->asArray()->all();
 
-        return $this->asJson(['activePlanningEvents' => $activePlanningEvents, 'noneActivePlanningEvents' => $noneActivePlanningEvents]);
+        $arrActivePlanningEvents = [];
+        $arrNoneActivePlanningEvents = [];
+
+        $arrNewKeyActivePlanningEvents = [];
+        $arrNewKeyNoneActivePlanningEvents = [];
+
+        if (!empty($activePlanningEvents)) {
+            foreach ($activePlanningEvents as $active_e) {
+                $strDate = strtotime($active_e['date']);
+
+                $arrActivePlanningEvents[date('d.m.Y', $strDate)]['id'] = md5(date('dmY', $strDate));
+                $arrActivePlanningEvents[date('d.m.Y', $strDate)]['name'] = date('d.m.Y', $strDate);
+                $arrActivePlanningEvents[date('d.m.Y', $strDate)]['children'][] = $active_e;
+            }
+
+            foreach ($arrActivePlanningEvents as $active_e) {
+                $arrNewKeyActivePlanningEvents[] = $active_e;
+            }
+        }
+
+        if (!empty($noneActivePlanningEvents)) {
+            foreach ($noneActivePlanningEvents as $noneActive_e) {
+                $strDate = strtotime($noneActive_e['date']);
+
+                $arrNoneActivePlanningEvents[date('d.m.Y', $strDate)]['id'] = md5(date('dmY', $strDate));
+                $arrNoneActivePlanningEvents[date('d.m.Y', $strDate)]['name'] = date('d.m.Y', $strDate);
+                $arrNoneActivePlanningEvents[date('d.m.Y', $strDate)]['children'][] = $noneActive_e;
+            }
+
+            foreach ($arrNoneActivePlanningEvents as $noneActive_e) {
+                $arrNewKeyNoneActivePlanningEvents[] = $noneActive_e;
+            }
+        }
+
+        return $this->asJson(['activePlanningEvents' => $arrNewKeyActivePlanningEvents,
+            'noneActivePlanningEvents' => $arrNewKeyNoneActivePlanningEvents]);
     }
 
     /**
@@ -57,6 +92,7 @@ class PlanningEventController extends AllApiController {
             $model->date = $planningEvent['date'];
             $model->description = $planningEvent['description'];
             $model->status = $planningEvent['status'];
+
             if ($model->validate() && $model->save()) {
                 $transaction->commit();
 
@@ -64,10 +100,13 @@ class PlanningEventController extends AllApiController {
             }
 
             $transaction->rollBack();
+
+            Yii::$app->response->format = Response::FORMAT_JSON;
             throw new HttpException(422, $model->errors);
         } catch (\Throwable $e) {
             $transaction->rollBack();
 
+            Yii::$app->response->format = Response::FORMAT_JSON;
             throw new HttpException($e->getCode(), 'server.errors.unknownError');
         }
     }
@@ -101,10 +140,13 @@ class PlanningEventController extends AllApiController {
             }
 
             $transaction->rollBack();
+
+            Yii::$app->response->format = Response::FORMAT_JSON;
             throw new HttpException(422, $planningEvent->errors);
         } catch (\Throwable $e) {
             $transaction->rollBack();
 
+            Yii::$app->response->format = Response::FORMAT_JSON;
             throw new HttpException($e->getCode(), 'server.errors.unknownError');
         }
     }
@@ -120,11 +162,13 @@ class PlanningEventController extends AllApiController {
     public function actionDelete($id): Response {
         $planningEvent = PlanningEvent::findOne(['id' => $id]);
 
+        $modelPlaningEvent = $planningEvent;
         if ($planningEvent->delete() > 0) {
             Yii::$app->getResponse()->setStatusCode(204);
 
-            return $this->asJson($planningEvent);
+            return $this->asJson($modelPlaningEvent);
         } else {
+            Yii::$app->response->format = Response::FORMAT_JSON;
             throw new HttpException(501, 'server.errors.unknownError');
         }
     }

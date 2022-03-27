@@ -85,16 +85,19 @@ class UserController extends AllApiController {
                 } else {
                     $transaction->rollBack();
 
+                    Yii::$app->response->format = Response::FORMAT_JSON;
                     throw new HttpException(422, $model->errors);
                 }
             } catch (\Throwable $e) {
                 $transaction->rollBack();
 
+                Yii::$app->response->format = Response::FORMAT_JSON;
                 throw new HttpException($e->getCode(), 'server.errors.unknownError');
             }
 
         }
 
+        Yii::$app->response->format = Response::FORMAT_JSON;
         throw new HttpException(412, 'form.errors.userAlreadyRegister');
     }
 
@@ -122,9 +125,11 @@ class UserController extends AllApiController {
                 }
             }
 
+            Yii::$app->response->format = Response::FORMAT_JSON;
             throw new HttpException(422, $login_form->errors);
         }
 
+        Yii::$app->response->format = Response::FORMAT_JSON;
         throw new HttpException(412, 'form.errors.userNoRegister');
     }
 
@@ -156,9 +161,11 @@ class UserController extends AllApiController {
                 return $this->asJson(['result' => 'ok']);
             }
 
-            throw new HttpException(422, ['result' => 'error', 'errors' => $oneUser->errors]);
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            throw new HttpException(422, $oneUser->errors);
         }
 
+        Yii::$app->response->format = Response::FORMAT_JSON;
         throw new HttpException(412, 'form.errors.userNoRegister');
     }
 
@@ -204,6 +211,7 @@ class UserController extends AllApiController {
                     } else {
                         $transaction->rollBack();
 
+                        Yii::$app->response->format = Response::FORMAT_JSON;
                         throw new HttpException(422, 'server.errors.currentPasswordNotCorrect');
                     }
                 }
@@ -223,14 +231,17 @@ class UserController extends AllApiController {
 
                         $transaction->rollBack();
 
+                        Yii::$app->response->format = Response::FORMAT_JSON;
                         throw new HttpException(422, $currency->errors);
                     }
                 }
 
+                Yii::$app->response->format = Response::FORMAT_JSON;
                 throw new HttpException(422, $oneUser->errors);
             } catch (\Throwable $e) {
                 $transaction->rollBack();
 
+                Yii::$app->response->format = Response::FORMAT_JSON;
                 throw new HttpException($e->getCode(), 'server.errors.unknownError');
             }
         }

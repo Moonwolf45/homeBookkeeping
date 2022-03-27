@@ -44,7 +44,8 @@ class PlanningEvent extends ActiveRecord {
     public function rules(): array {
         return [
             [['user_id', 'category_id', 'bill_id', 'amount', 'date'], 'required'],
-            [['user_id', 'category_id', 'bill_id', 'type', 'date', 'view', 'status'], 'integer'],
+            [['user_id', 'category_id', 'bill_id', 'type', 'status'], 'integer'],
+            [['date'], 'datetime', 'format' => 'php:Y-m-d H:i'],
             [['amount'], 'number'],
             [['description', 'currency'], 'string'],
             [['currency'], 'default', 'value' => Currency::DEFAULT_CURRENCY['RUB']['CharCode']],

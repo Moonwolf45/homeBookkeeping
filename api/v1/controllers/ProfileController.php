@@ -67,6 +67,7 @@ class ProfileController extends AllApiController {
             return $this->asJson($editBill);
         }
 
+        Yii::$app->response->format = Response::FORMAT_JSON;
         throw new HttpException(400, 'server.errors.unknownError');
     }
 
@@ -102,7 +103,8 @@ class ProfileController extends AllApiController {
             return $this->asJson(true);
         }
 
-        throw new HttpException(400, 'server.errors.unknownError');
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        throw new HttpException(501, 'server.errors.unknownError');
     }
 
     /**

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { i18n } from '@/i18n/i18n';
+import { i18n } from '../i18n/i18n';
 import moment from 'moment';
 
 class Event {
@@ -150,9 +150,6 @@ export default {
         throw err
       }
     },
-    setLoadingEvents ({ commit }, payload) {
-      commit('setLoadingEvents', payload)
-    },
     async addEvent ({ commit, dispatch, getters }, payload) {
       commit('clearError')
       commit('setLoading', true)
@@ -216,7 +213,7 @@ export default {
       try {
         const event = await axios.delete(process.env.VUE_APP_URL + '/api/v1/events/' + payload.id)
 
-        if (event.data.id > 0) {
+        if (event.status === 204) {
           await dispatch('getProfile', getters.user.id)
 
           commit('setMessage', { status: 'success', message: i18n.t('records.event.delete_success') })

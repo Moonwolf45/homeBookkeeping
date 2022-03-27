@@ -168,7 +168,7 @@ export default {
 
       this.$refs.form.reset();
       this.name = null;
-      this.currency = this.$store.getters.mainCurrency?.CharCode ?? 'RUB'
+      this.currency = this.$store.getters.mainCurrency?.CharCode || 'RUB'
       this.amount = 0;
     },
     createAccount (edit = false) {

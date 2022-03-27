@@ -61,7 +61,7 @@ class AllApiController extends ActiveController {
     /**
      * @return array
      */
-    public function actions() {
+    public function actions(): array {
         $actions = parent::actions();
 
         $actions['options'] = ['class' => 'yii\rest\OptionsAction'];

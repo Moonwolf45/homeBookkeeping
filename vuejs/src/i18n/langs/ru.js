@@ -1,7 +1,10 @@
 export const RUSSIAN_TRANSLATIONS = {
     all: {
         cancel: 'Отмена',
-        apply: 'Применить'
+        apply: 'Применить',
+        delete: 'Удалить',
+        edit: 'Редактировать',
+        save: 'Сохранить',
     },
     main: {
         homeBookkeeping: 'Домашняя бухгалтерия',
@@ -84,12 +87,20 @@ export const RUSSIAN_TRANSLATIONS = {
     },
     planning: {
         name: 'Планирование',
+        notActivePlanningTransaction: 'Активных запланированных транзакций нет',
+        notNoneActivePlanningTransaction: 'Неактивных запланированных транзакций нет',
         tabs: {
             active: 'Активные',
             notActive: 'Архив'
         },
         selectPlanningDate: 'Выберите дату',
         selectPlanningEvent: 'Выберите запись',
+        from: 'от',
+        edit_planning: {
+            add_success: 'Запись успешно добавлена',
+            edit_success: 'Запись успешно изменена',
+            delete_success: 'Запись успешно удалена',
+        },
     },
     records: {
         name: 'Страница записей',
@@ -109,7 +120,7 @@ export const RUSSIAN_TRANSLATIONS = {
             add_success: 'Счёт успешно создан',
             edit_success: 'Счёт успешно изменен',
             delete_success: 'Счёт {name} удалён',
-        }
+        },
     },
     settings: {
         name: 'Настройки',
@@ -147,6 +158,9 @@ export const RUSSIAN_TRANSLATIONS = {
         timZone: 'Выберите часовой пояс',
         selectAll: 'Выбрать всё',
         countElements: '+{count} элементов | +{count} элемент | +{count} элемента | +{count} элементов',
+        status: 'Статус',
+        status_on: 'Вкл',
+        status_off: 'Выкл',
         errors: {
             emailRequired: 'e-mail не должен быть пустым',
             emailCorrect: 'Введите корректный e-mail',
@@ -159,6 +173,7 @@ export const RUSSIAN_TRANSLATIONS = {
             categoryRequired: 'Категория не может быть пустой',
             currencyRequired: 'Валюта не может быть пустой',
             typeRequired: 'Тип не может быть пустым',
+            statusRequired: 'Статус не может быть пустым',
             amountRequired: 'Сумма не может быть пустой',
             amountAboveZero: 'Сумма должна быть больше нуля',
             amountInsufficient: 'На счёте недостаточно средств'

@@ -24,7 +24,8 @@ return [
                 'prettyPrint' => YII_DEBUG,
                 'encodeOptions' => JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
             ]
-        ]
+        ],
+        'format' => yii\web\Response::FORMAT_JSON,
     ],
     'errorHandler' => [
         'class' => 'yii\web\ErrorHandler',

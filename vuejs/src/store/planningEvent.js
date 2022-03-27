@@ -1,25 +1,40 @@
 import axios from 'axios';
-import { i18n } from '@/i18n/i18n';
+import { i18n } from '../i18n/i18n';
 import moment from 'moment';
 
 class PlanningEvent {
-  constructor (user_id, category_id, bill_id, currency, type, amount, date, description, id = null) {
+  constructor (user_id, category_id, bill_id, currency, type, amount, date, description, status, id = null,
+               event_id = null, locale = null) {
+
     this.id = id !== null ? parseInt(id) : null;
+
+    if (locale !== null) {
+      this.name = (parseInt(type) === 1 ? i18n.t('history.chart.income') : i18n.t('history.chart.outcome')) + ' ';
+      this.name += new Intl.NumberFormat(locale, { style: 'decimal', currency: currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
+      this.name += ' ' + i18n.t('planning.from') + ' ' + moment(date, 'YYYY-MM-DD HH:mm').format('DD.MM.YYYY HH:mm')
+    } else {
+      this.name = (parseInt(type) === 1 ? i18n.t('history.chart.income') : i18n.t('history.chart.outcome')) + ' ';
+      this.name += new Intl.NumberFormat('ru-RU', { style: 'decimal', currency: 'RUB', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
+      this.name += ' ' + i18n.t('planning.from') + ' ' + moment(date, 'YYYY-MM-DD HH:mm').format('DD.MM.YYYY HH:mm')
+    }
+
+    this.event_id = event_id !== null ? parseInt(event_id) : null;
     this.user_id = parseInt(user_id);
     this.category_id = parseInt(category_id);
     this.bill_id = parseInt(bill_id);
     this.currency = currency;
     this.type = parseInt(type) === 1 ? 'income' : 'outcome' ;
     this.amount = parseFloat(amount);
-    this.date = moment(date, 'X').format('DD.MM.YYYY HH:mm');
+    this.date = moment(date, 'YYYY-MM-DD HH:mm').format('DD.MM.YYYY HH:mm');
     this.description = description;
+    this.status = parseInt(status);
   }
 }
 
 export default {
   state: {
-    activePlanningEvents: null,
-    nonActivePlanningEvents: null,
+    activePlanningEvents: [],
+    nonActivePlanningEvents: [],
     loadingPlanningEvents: false,
   },
   mutations: {
@@ -46,24 +61,67 @@ export default {
       commit('clearError')
       commit('setLoadingPlanningEvents', true)
 
-      const finalEvents = []
-
       try {
-        const events = await axios.get(process.env.VUE_APP_URL + '/api/v1/planning-events', {
+        const planningEvent = await axios.get(process.env.VUE_APP_URL + '/api/v1/planning-events', {
           params: { user_id: getters.user.id }
         })
 
-        console.log(events.data);
-        if (Object.values(events.data.events).length > 0) {
-          events.data.events.forEach((event) => {
-            finalEvents.push(
-              new PlanningEvent(event.user_id, event.category_id, event.bill_id, event.currency, event.type, event.amount,
-                         event.date, event.description, event.id)
-            )
-          })
+        const finalPlanningEventsActive = []
+        const finalPlanningEventsNoneActive = []
+        const currenciesUser = getters.currenciesUser
 
-          commit('addActivePlanningEvents', finalEvents)
-          commit('addNonActivePlanningEvents', finalEvents)
+        if (Object.values(planningEvent.data).length > 0) {
+          if (planningEvent.data.activePlanningEvents.length > 0) {
+            planningEvent.data.activePlanningEvents.forEach((planningEvent) => {
+              let childrenActive = [];
+
+              if (planningEvent.children.length > 0) {
+                planningEvent.children.forEach((childrenPlanningEvent) => {
+                  let locale = currenciesUser.find((element) => {
+                    if (element.CharCode === childrenPlanningEvent.currency) {
+                      return element.locale
+                    }
+                  });
+                  locale = locale !== undefined ? locale : 'ru-RU'
+
+                  childrenActive.push(new PlanningEvent(childrenPlanningEvent.user_id, childrenPlanningEvent.category_id,
+                    childrenPlanningEvent.bill_id, childrenPlanningEvent.currency, childrenPlanningEvent.type,
+                    childrenPlanningEvent.amount, childrenPlanningEvent.date, childrenPlanningEvent.description,
+                    childrenPlanningEvent.status, childrenPlanningEvent.id, childrenPlanningEvent.event_id, locale));
+                });
+              }
+
+              finalPlanningEventsActive.push({ id: planningEvent.id, name: planningEvent.name, children: childrenActive });
+            });
+          }
+
+          if (planningEvent.data.noneActivePlanningEvents.length > 0) {
+            planningEvent.data.noneActivePlanningEvents.forEach((planningEvent) => {
+              let childrenNoneActive = [];
+
+              if (planningEvent.children.length > 0) {
+                planningEvent.children.forEach((childrenPlanningEvent) => {
+                  let locale = currenciesUser.find((element) => {
+                    if (element.CharCode === childrenPlanningEvent.currency) {
+                      return element.locale
+                    }
+                  });
+                  locale = locale !== undefined ? locale : 'ru-RU'
+
+                  childrenNoneActive.push(new PlanningEvent(childrenPlanningEvent.user_id,
+                    childrenPlanningEvent.category_id, childrenPlanningEvent.bill_id, childrenPlanningEvent.currency,
+                    childrenPlanningEvent.type, childrenPlanningEvent.amount, childrenPlanningEvent.date,
+                    childrenPlanningEvent.description, childrenPlanningEvent.status, childrenPlanningEvent.id,
+                    childrenPlanningEvent.event_id, locale));
+                });
+              }
+
+              finalPlanningEventsNoneActive.push({ id: planningEvent.id, name: planningEvent.name, children: childrenNoneActive });
+            });
+          }
+
+          commit('addActivePlanningEvents', finalPlanningEventsActive)
+          commit('addNonActivePlanningEvents', finalPlanningEventsNoneActive)
         }
 
         commit('setLoadingPlanningEvents', false)
@@ -78,15 +136,67 @@ export default {
         throw err
       }
     },
-    async addPlanningEvent ({ commit }, payload) {
+    async addPlanningEvent ({ commit, dispatch }, payload) {
       commit('clearError')
       commit('setLoadingPlanningEvents', true)
 
       try {
-        await axios.post(process.env.VUE_APP_URL + '/api/v1/planning-events', payload)
+        const planningEvent = await axios.post(process.env.VUE_APP_URL + '/api/v1/planning-events', payload)
 
-        commit('setMessage', { status: 'success', message: i18n.t('records.event.success') })
+        if (planningEvent.data.id > 0) {
+          commit('setMessage', { status: 'success', message: i18n.t('planning.edit_planning.add_success') })
+          commit('setLoadingPlanningEvents', false)
+
+          await dispatch('getAllPlanningEvents')
+        }
+      } catch (err) {
+        if (err.response.data) {
+          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
+        } else {
+          console.log(err)
+        }
+
         commit('setLoadingPlanningEvents', false)
+        throw err
+      }
+    },
+    async updatePlanningEvent ({ commit, dispatch }, payload) {
+      commit('clearError')
+      commit('setLoadingPlanningEvents', true)
+
+      try {
+        const planningEvent = await axios.patch(process.env.VUE_APP_URL + '/api/v1/planning-events/' + payload.id, payload)
+
+        if (planningEvent.data.id > 0) {
+          commit('setMessage', { status: 'success', message: i18n.t('planning.edit_planning.edit_success') })
+          commit('setLoadingPlanningEvents', false)
+
+          await dispatch('getAllPlanningEvents')
+        }
+      } catch (err) {
+        if (err.response.data) {
+          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
+        } else {
+          console.log(err)
+        }
+
+        commit('setLoadingPlanningEvents', false)
+        throw err
+      }
+    },
+    async deletePlanningEvent ({ commit, dispatch }, payload) {
+      commit('clearError')
+      commit('setLoadingPlanningEvents', true)
+
+      try {
+        const planningEvent = await axios.delete(process.env.VUE_APP_URL + '/api/v1/planning-events/' + payload)
+
+        if (planningEvent.status === 204) {
+          commit('setMessage', { status: 'success', message: i18n.t('planning.edit_planning.delete_success') })
+          commit('setLoadingPlanningEvents', false)
+
+          await dispatch('getAllPlanningEvents')
+        }
       } catch (err) {
         if (err.response.data) {
           commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })

@@ -1,7 +1,10 @@
 export const ENGLISH_TRANSLATIONS = {
     all: {
         cancel: 'Cancel',
-        apply: 'Apply'
+        apply: 'Apply',
+        delete: 'Delete',
+        edit: 'Edit',
+        save: 'Save',
     },
     main: {
         homeBookkeeping: 'Home bookkeeping',
@@ -84,12 +87,20 @@ export const ENGLISH_TRANSLATIONS = {
     },
     planning: {
         name: 'Planning',
+        notActivePlanningTransaction: 'There are no active scheduled transactions',
+        notNoneActivePlanningTransaction: 'There are no inactive scheduled transactions',
         tabs: {
             active: 'Active',
             notActive: 'Archive'
         },
         selectPlanningDate: 'Choose date',
         selectPlanningEvent: 'Choose event',
+        from: 'from',
+        edit_planning: {
+            add_success: 'Record added successfully',
+            edit_success: 'Record changed successfully',
+            delete_success: 'Record successfully deleted',
+        },
     },
     records: {
         name: 'Records page',
@@ -109,7 +120,7 @@ export const ENGLISH_TRANSLATIONS = {
             add_success: 'Account successfully created',
             edit_success: 'Account changed successfully',
             delete_success: 'Account {name} deleted',
-        }
+        },
     },
     settings: {
         name: 'Settings',
@@ -147,6 +158,9 @@ export const ENGLISH_TRANSLATIONS = {
         timZone: 'Choose your time zone',
         selectAll: 'Select all',
         countElements: '+{count} elements | +{count} element | +{count} element | +{count} elements',
+        status: 'Status',
+        status_on: 'Enable',
+        status_off: 'Disable',
         errors: {
             emailRequired: 'E-mail is required',
             emailCorrect: 'Please enter a valid e-mail',
@@ -159,6 +173,7 @@ export const ENGLISH_TRANSLATIONS = {
             categoryRequired: 'Category cannot be empty',
             currencyRequired: 'Currency cannot be empty',
             typeRequired: 'Type cannot be empty',
+            statusRequired: 'Status cannot be empty',
             amountRequired: 'The amount cannot be empty',
             amountAboveZero: 'Amount must be greater than zero',
             amountInsufficient: 'This account had insufficient funds'

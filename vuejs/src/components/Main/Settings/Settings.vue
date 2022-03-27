@@ -66,7 +66,7 @@ export default {
   data () {
     return {
       valid: false,
-      username: this.$store.getters.user?.username ?? '',
+      username: this.$store.getters.user?.username || '',
       email: this.$store.getters.user?.email,
       emailRules: [
         v => !!v || this.$i18n.t('form.errors.emailRequired'),
@@ -77,7 +77,7 @@ export default {
         v => !!v || this.$i18n.t('form.errors.currencyRequired')
       ],
       currenciesValue: [],
-      timeZone: this.$store.getters.user?.timeZone ?? 'Europe/Moscow',
+      timeZone: this.$store.getters.user?.timeZone || 'Europe/Moscow',
       changePassword: false,
       password: '',
       showPassword: false,

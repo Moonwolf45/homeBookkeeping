@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { i18n } from '@/i18n/i18n';
+import { i18n } from '../i18n/i18n';
 
 class Currency {
   constructor (user_id, CharCode, Name , locale, id = null) {
@@ -14,13 +14,13 @@ class Currency {
 export default {
   state: {
     currency: null,
-    loadingCurrency: true,
+    loadingCurrency: false,
     currencyAll: null,
-    loadingCurrencyAll: true,
+    loadingCurrencyAll: false,
     currencyUser: null,
-    loadingCurrencyUser: true,
+    loadingCurrencyUser: false,
     mainCurrency: null,
-    loadingMainCurrency: true
+    loadingMainCurrency: false
   },
   mutations: {
     loadCurrency (state, payload) {
@@ -85,12 +85,9 @@ export default {
         throw err
       }
     },
-    setLoadingCurrency ({ commit }, payload) {
-      commit('setLoadingCurrency', payload)
-    },
     async getAllCurrency ({ commit, getters }) {
-      commit('setLoadingCurrencyAll', true)
       commit('clearError')
+      commit('setLoadingCurrencyAll', true)
       const resultAllCurrencies = []
 
       try {

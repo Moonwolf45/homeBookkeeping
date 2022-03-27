@@ -2,7 +2,7 @@
 
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
-$config_api = require __DIR__ . '/../api/config_api.php';
+$config_api = require '../api/config_api.php';
 
 $config = [
     'id' => 'homeBookkeeping_1',
@@ -99,7 +99,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['api/v1/user', 'api/v1/profile', 'api/v1/category',
-                    'api/v1/event', 'api/v1/planningEvent', 'api/v1/currency', 'api/v1/notification'],
+                    'api/v1/event', 'api/v1/planning-event', 'api/v1/currency', 'api/v1/notification'],
                     'patterns' => [
                         'PUT,PATCH {id}' => 'update',
                         'DELETE {id}' => 'delete',
