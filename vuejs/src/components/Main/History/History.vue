@@ -5,6 +5,35 @@
         {{ $t('history.name') }}
       </h3>
       <div class="text-right">
+        <v-menu offset-y  v-if="income || outcome || events !== null">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="teal" dark v-bind="attrs" v-on="on" class="mr-2">
+              Выгрузить в ...
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-list-item-title>
+                <download-excel class="btn btn-default" :data="events" :fields="json_fields"
+                  :name="$t('history.report_from', { date: this.$moment().format('DD.MM.YYYY'),
+                  dateFrom: this.$moment(this.filter.dataFrom, 'X').format('DD.MM.YYYY'),
+                  dateTo: this.$moment(this.filter.dataTo, 'X').format('DD.MM.YYYY') }) + '.xls'" :footer="excel_footer">
+                  Excel
+                </download-excel>
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>
+                <download-excel class="btn btn-default" :data="events" :fields="json_fields"
+                  type="csv" :name="$t('history.report_from', { date: this.$moment().format('DD.MM.YYYY'),
+                  dateFrom: this.$moment(this.filter.dataFrom, 'X').format('DD.MM.YYYY'),
+                  dateTo: this.$moment(this.filter.dataTo, 'X').format('DD.MM.YYYY') }) + '.xls'" :footer="excel_footer">
+                  Csv
+                </download-excel>
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
         <v-btn dark color="teal" @click="onFilter">
           <v-icon dark>
             filter_list
@@ -81,17 +110,14 @@
           <template v-slot:item.amount="{ item }">
             <div>
               <span v-html="$getSymbolCurrency(item.currency)"></span>
-              <span>{{ new Intl.NumberFormat(currenciesUser.filter((cur) => {
-                cur.CharCode === item.currency }).locale, { style: 'decimal', currency: item.currency,
-                minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.amount) }}
+              <span>{{ getNeedCurrencyAmount(item.currency, item.amount) }}
               </span>
             </div>
 
             <div v-if="item.currency !== mainCurrency.CharCode"> ~
               <span v-html="$getSymbolCurrency(mainCurrency.CharCode)"></span>
-              <span> {{ new Intl.NumberFormat(mainCurrency.locale, { style: 'decimal',
-                currency: mainCurrency.CharCode, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
-                $getCurrencyBalance(allCurrencies, item.amount, item.currency, mainCurrency.CharCode)) }}
+              <span> {{ getNeedCurrencyAmount(mainCurrency.CharCode, $getCurrencyBalance(allCurrencies, item.amount,
+                item.currency, mainCurrency.CharCode)) }}
               </span>
             </div>
           </template>
@@ -107,13 +133,68 @@
               <v-icon>delete</v-icon>
             </v-btn>
           </template>
+
+          <template v-slot:body.append>
+            <template v-if="income && monthly_income > 0">
+              <tr>
+                <td colspan="2">{{ $t('history.table.monthly_income') }}</td>
+                <td colspan="3"></td>
+                <td class="text-center">
+                  <div>
+                    <span v-html="$getSymbolCurrency(mainCurrency.CharCode)"></span>
+                    <span>{{ getNeedCurrencyAmount(mainCurrency.CharCode, monthly_income) }}</span>
+                  </div>
+                </td>
+                <td></td>
+              </tr>
+            </template>
+            <template v-if="outcome && monthly_outcome > 0">
+              <tr>
+                <td colspan="2">{{ $t('history.table.monthly_outcome') }}</td>
+                <td colspan="3"></td>
+                <td class="text-center">
+                  <div>
+                    <span v-html="$getSymbolCurrency(mainCurrency.CharCode)"></span>
+                    <span>{{ getNeedCurrencyAmount(mainCurrency.CharCode, monthly_outcome) }}</span>
+                  </div>
+                </td>
+                <td></td>
+              </tr>
+            </template>
+            <template v-if="income">
+              <tr>
+                <td colspan="2">{{ $t('history.table.all_income') }}</td>
+                <td colspan="3"></td>
+                <td class="text-center">
+                  <div>
+                    <span v-html="$getSymbolCurrency(mainCurrency.CharCode)"></span>
+                    <span>{{ getNeedCurrencyAmount(mainCurrency.CharCode, all_income) }}</span>
+                  </div>
+                </td>
+                <td></td>
+              </tr>
+            </template>
+            <template v-if="outcome">
+              <tr>
+                <td colspan="2">{{ $t('history.table.all_outcome') }}</td>
+                <td colspan="3"></td>
+                <td class="text-center">
+                  <div>
+                    <span v-html="$getSymbolCurrency(mainCurrency.CharCode)"></span>
+                    <span>{{ getNeedCurrencyAmount(mainCurrency.CharCode, all_outcome) }}</span>
+                  </div>
+                </td>
+                <td></td>
+              </tr>
+            </template>
+          </template>
         </v-data-table>
       </v-row>
     </template>
 
     <modalWindow :dialog="actionEvent" :maxWidth="'720px'">
       <EventComponent :event="objectEventElement" :blockInput="blockInputEventComponent"
-                      @callCloseModal="closeModalEventComponent" @callCloseAndSaveModal="closeModalAndSaveEventComponent" />
+        @callCloseModal="closeModalEventComponent" @callCloseAndSaveModal="closeModalAndSaveEventComponent" />
     </modalWindow>
 
     <modalWindow :dialog="openFilter" :maxWidth="'720px'">
@@ -132,6 +213,43 @@ import EventComponent from './../../Other/EventComponent';
 export default {
   data () {
     return {
+      json_fields: {
+        'history.date': 'date',
+        'history.category': {
+          field: 'category_id',
+          callback: (value) => {
+            return this.getCategoryName(value);
+          },
+        },
+        'history.bill': {
+          field: 'bill_id',
+          callback: (value) => {
+            return this.getBillName(value);
+          },
+        },
+        'history.type': {
+          field: 'type',
+          callback: (value) => {
+            return value === 'income' ? this.$i18n.t('history.chart.income') : this.$i18n.t('history.chart.outcome');
+          },
+        },
+        'history.amount': {
+          field: 'currentCurrencyBalance',
+          callback: (value) => {
+            return this.$getSymbolCurrency(this.mainCurrency.CharCode) + ' '
+              + this.getNeedCurrencyAmount(this.mainCurrency.CharCode, value);
+          },
+        }
+      },
+      json_meta: [
+        [
+          {
+            key: 'charset',
+            value: 'utf-8',
+          },
+        ],
+      ],
+      excel_footer: [],
       headers: [
         { text: '#', value: 'id' },
         { text: this.$i18n.t('history.table.date'), align: 'center', value: 'date' },
@@ -193,6 +311,18 @@ export default {
     category () {
       return this.$store.getters.category
     },
+    monthly_income () {
+      return this.$store.getters.monthly_income
+    },
+    monthly_outcome () {
+      return this.$store.getters.monthly_outcome
+    },
+    all_income () {
+      return this.$store.getters.all_income
+    },
+    all_outcome () {
+      return this.$store.getters.all_outcome
+    }
   },
   methods: {
     getCharts () {
@@ -255,6 +385,11 @@ export default {
     getBillName (bill_id) {
       let billItem = this.$store.getters.profileById(bill_id)
       return billItem.name
+    },
+    getNeedCurrencyAmount (currency, amount) {
+      const needLocale = this.currenciesUser.filter((cur) => { cur.CharCode === currency }).locale;
+      return new Intl.NumberFormat(needLocale , { style: 'decimal', currency: currency,
+        minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     },
     onFilter () {
       if (this.bills.length === 0) {

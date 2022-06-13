@@ -11,6 +11,7 @@ use app\models\User;
 use Yii;
 use yii\caching\TagDependency;
 use yii\filters\auth\HttpBearerAuth;
+use yii\httpclient\Client;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -50,55 +51,67 @@ class UserController extends AllApiController {
      *
      * @throws HttpException
      * @throws \yii\base\InvalidConfigException
+     * @throws \yii\httpclient\Exception
      */
     public function actionRegistration(): Response {
         $model = new User();
-
         $newUser = Yii::$app->getRequest()->getBodyParams();
-        if (empty(User::findByEmail($newUser['email']))) {
-            $transaction = Yii::$app->db->beginTransaction();
 
-            try {
-                $model->username = $newUser['username'];
-                $model->email = $newUser['email'];
-                $model->timeZone = $newUser['timeZone'];
-                $model->setPassword($newUser['password']);
-                $model->generateAuthKey();
-                $model->status = User::STATUS_ACTIVE;
-                if ($model->validate() && $model->save()) {
-                    foreach (Category::DEFAULT_CATEGORY as $category) {
-                        $newUserCategory = new Category();
-                        $newUserCategory->user_id = $model->id;
-                        $newUserCategory->title = $category['title'];
-                        $newUserCategory->color = $category['color'];
-                        $newUserCategory->save();
+        $client = new Client();
+        $response = $client->createRequest()->setMethod('post')
+            ->setUrl('https://www.google.com/recaptcha/api/siteverify')
+            ->setData(['secret' => Yii::$app->params['keySecret'], 'response' => $newUser['token']])
+            ->send();
+
+        if ($response->isOk && $response->data['success']) {
+            if (empty(User::findByEmail($newUser['email']))) {
+                $transaction = Yii::$app->db->beginTransaction();
+
+                try {
+                    $model->username = $newUser['username'];
+                    $model->email = $newUser['email'];
+                    $model->timeZone = $newUser['timeZone'];
+                    $model->setPassword($newUser['password']);
+                    $model->generateAuthKey();
+                    $model->status = User::STATUS_ACTIVE;
+                    $model->language = $newUser['language'];
+                    if ($model->validate() && $model->save()) {
+                        foreach (Category::DEFAULT_CATEGORY as $category) {
+                            $newUserCategory = new Category();
+                            $newUserCategory->user_id = $model->id;
+                            $newUserCategory->title = $category['title'];
+                            $newUserCategory->color = $category['color'];
+                            $newUserCategory->save();
+                        }
+
+                        $newCurrency = new Currency();
+                        $newCurrency->user_id = $model->id;
+                        $newCurrency->string_currency = 'RUB,USD,EUR';
+                        $newCurrency->main_currency = 'RUB';
+                        $newCurrency->save();
+
+                        $transaction->commit();
+                        return $this->asJson($model);
+                    } else {
+                        $transaction->rollBack();
+
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        throw new HttpException(422, $model->errors);
                     }
-
-                    $newCurrency = new Currency();
-                    $newCurrency->user_id = $model->id;
-                    $newCurrency->string_currency = 'RUB,USD,EUR';
-                    $newCurrency->main_currency = 'RUB';
-                    $newCurrency->save();
-
-                    $transaction->commit();
-                    return $this->asJson($model);
-                } else {
+                } catch (\Throwable $e) {
                     $transaction->rollBack();
 
                     Yii::$app->response->format = Response::FORMAT_JSON;
-                    throw new HttpException(422, $model->errors);
+                    throw new HttpException($e->getCode(), 'server.errors.unknownError');
                 }
-            } catch (\Throwable $e) {
-                $transaction->rollBack();
-
-                Yii::$app->response->format = Response::FORMAT_JSON;
-                throw new HttpException($e->getCode(), 'server.errors.unknownError');
             }
 
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            throw new HttpException(412, 'form.errors.userAlreadyRegister');
+        } else {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            throw new HttpException(400, 'form.errors.captchaInvalid');
         }
-
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        throw new HttpException(412, 'form.errors.userAlreadyRegister');
     }
 
     /**
@@ -204,6 +217,7 @@ class UserController extends AllApiController {
                 $oneUser->username = $user['username'];
                 $oneUser->email = $user['email'];
                 $oneUser->timeZone = $user['timeZone'];
+                $oneUser->language = $user['language'];
 
                 if ($user['changePassword']) {
                     if ($oneUser->validatePassword($user['password'])) {
@@ -234,6 +248,42 @@ class UserController extends AllApiController {
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         throw new HttpException(422, $currency->errors);
                     }
+                }
+
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                throw new HttpException(422, $oneUser->errors);
+            } catch (\Throwable $e) {
+                $transaction->rollBack();
+
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                throw new HttpException($e->getCode(), 'server.errors.unknownError');
+            }
+        }
+    }
+
+    /**
+     * @param $id
+     *
+     * @return Response
+     *
+     * @throws HttpException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionUpdateLanguage ($id): Response {
+        $user = Yii::$app->getRequest()->getBodyParams();
+
+        $oneUser = User::findOne($id);
+        if (!empty($oneUser)) {
+            $transaction = Yii::$app->db->beginTransaction();
+
+            try {
+                $oneUser->language = $user['language'];
+
+                if ($oneUser->validate() && $oneUser->save()) {
+//                    TagDependency::invalidate(Yii::$app->cache, 'currency_' . $oneUser->id);
+
+                    $transaction->commit();
+                    return $this->asJson(['user' => $oneUser]);
                 }
 
                 Yii::$app->response->format = Response::FORMAT_JSON;

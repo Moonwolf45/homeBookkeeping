@@ -19,6 +19,7 @@ use yii\db\ActiveRecord;
  * @property int $date
  * @property string|null $description
  * @property int $status
+ * @property int $active
  * @property int $event_id
  *
  * @property Category $category
@@ -28,8 +29,12 @@ use yii\db\ActiveRecord;
  */
 class PlanningEvent extends ActiveRecord {
 
-    const STATUS_ON = 1;
-    const STATUS_OFF = 0;
+    const STATUS_DONE = 1;
+    const STATUS_PERFORMED = 2;
+    const STATUS_IS_WAITING = 0;
+
+    const ACTIVE_ON = 1;
+    const ACTIVE_OFF = 0;
 
     /**
      * {@inheritdoc}
@@ -44,12 +49,13 @@ class PlanningEvent extends ActiveRecord {
     public function rules(): array {
         return [
             [['user_id', 'category_id', 'bill_id', 'amount', 'date'], 'required'],
-            [['user_id', 'category_id', 'bill_id', 'type', 'status'], 'integer'],
+            [['user_id', 'category_id', 'bill_id', 'type', 'status', 'active'], 'integer'],
             [['date'], 'datetime', 'format' => 'php:Y-m-d H:i'],
             [['amount'], 'number'],
             [['description', 'currency'], 'string'],
             [['currency'], 'default', 'value' => Currency::DEFAULT_CURRENCY['RUB']['CharCode']],
-            [['status'], 'default', 'value' => self::STATUS_ON],
+            [['status'], 'default', 'value' => self::STATUS_IS_WAITING],
+            [['active'], 'default', 'value' => self::ACTIVE_ON],
             [['bill_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bill::class,
                 'targetAttribute' => ['bill_id' => 'id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class,
@@ -76,6 +82,7 @@ class PlanningEvent extends ActiveRecord {
             'date' => 'Date',
             'description' => 'Description',
             'status' => 'Status',
+            'active' => 'Active',
             'event_id' => 'Event ID',
         ];
     }

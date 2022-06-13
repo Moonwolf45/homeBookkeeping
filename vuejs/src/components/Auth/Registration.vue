@@ -20,8 +20,8 @@
                       v-model="confirmPassword" @click:append="showConfirmPassword = !showConfirmPassword"
                       :append-icon="showConfirmPassword ? 'visibility' : 'visibility_off'" />
 
-        <vue-recaptcha ref="recaptcha" :sitekey="process.env.VUE_APP_KEY_SITE" :loadRecaptchaScript="true"
-                       :language="this.$root.$i18n.locale" @verify="verifyRecaptcha" @expired="onCaptchaExpired" />
+        <vue-recaptcha ref="recaptcha" size="invisible" :sitekey="envSiteKey" :loadRecaptchaScript="true"
+                       :language="this.$root.$i18n.locale" @verify="onSubmit" @expired="onCaptchaExpired" />
 
         <v-checkbox prepend-icon="login" type="checkbox" name="loginAfterRegistration" v-model="loginAfterRegistration"
                     :label="$t('form.loginAfterRegistration')" off-icon="check_box_outline_blank" on-icon="check_box" />
@@ -30,7 +30,7 @@
 
     <v-card-actions>
       <v-spacer/>
-      <v-btn color="primary" @click="onSubmit()" :loading="loading" :disabled="!valid || loading">
+      <v-btn color="primary" @click="onSend()" :loading="loading" :disabled="!valid || loading">
         {{ $t('auth.registration') }}
       </v-btn>
     </v-card-actions>
@@ -72,7 +72,8 @@ export default {
         v => !!v || this.$i18n.t('form.errors.passwordRequired'),
         v => (v && v.length >= 6) || this.$i18n.t('form.errors.passwordLong'),
         v => v === this.password || this.$i18n.t('form.errors.passwordNotMatch')
-      ]
+      ],
+      envSiteKey: process.env.VUE_APP_KEY_SITE
     }
   },
   computed: {
@@ -84,13 +85,14 @@ export default {
     filter (item, queryText) {
       return (item.text || '').toLowerCase().indexOf((queryText || '').toLowerCase()) > -1
     },
-    onSubmit () {
+    onSubmit (recaptchaToken) {
       if (this.$refs.form.validate()) {
         const user = {
           username: this.username,
           email: this.email,
           password: this.password,
-          timeZone: this.timeZone
+          timeZone: this.timeZone,
+          token: recaptchaToken
         }
 
         this.$store.dispatch('registerUser', user).then(() => {
@@ -104,11 +106,11 @@ export default {
         }).catch(() => {})
       }
     },
-    verifyRecaptcha () {
-
+    onSend () {
+      this.$refs.recaptcha.execute()
     },
     onCaptchaExpired () {
-      // this.$refs.recaptcha.reset()
+      this.$refs.recaptcha.reset()
     }
   },
   components: {

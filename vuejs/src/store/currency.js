@@ -71,7 +71,7 @@ export default {
       const mainCurrency = getters.mainCurrency.CharCode;
 
       try {
-        const currency = await axios.get(process.env.VUE_APP_URL + '/api/v1/profiles/currency?base=' + mainCurrency)
+        const currency = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/v1/profiles/currency?base=' + mainCurrency)
 
         commit('loadCurrency', currency.data)
         commit('setLoadingCurrency', false)
@@ -91,7 +91,7 @@ export default {
       const resultAllCurrencies = []
 
       try {
-        const currencies = await axios.get(process.env.VUE_APP_URL + '/api/v1/currencies/all-currency')
+        const currencies = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/v1/currencies/all-currency')
 
         if (currencies.data.length !== 0) {
           let user = getters.user;
@@ -127,7 +127,7 @@ export default {
       const resultCurrencies = []
 
       try {
-        const currencies = await axios.get(process.env.VUE_APP_URL + '/api/v1/currencies/' + payload)
+        const currencies = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/v1/currencies/' + payload)
 
         if (currencies.data.currency.length !== 0) {
           let user_id = currencies.data.user_id;

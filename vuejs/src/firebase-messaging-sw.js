@@ -1,5 +1,5 @@
-import { onBackgroundMessage } from 'firebase/messaging/sw'
 import { initializeApp } from 'firebase/app'
+import { onBackgroundMessage } from 'firebase/messaging/sw'
 import { getMessaging, isSupported } from 'firebase/messaging/sw'
 
 try {

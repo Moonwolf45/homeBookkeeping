@@ -3,29 +3,23 @@ import Router from 'vue-router'
 
 import AuthGuard from './auth-guard'
 
-import Login from '@/components/Auth/Login';
-import Registration from '@/components/Auth/Registration';
-import ForgotPassword from '@/components/Auth/ForgotPassword';
+import Login from '../components/Auth/Login';
+import Registration from '../components/Auth/Registration';
+import ForgotPassword from '../components/Auth/ForgotPassword';
 
-import Overview from '@/components/Main/Overview/Overview';
-import History from '@/components/Main/History/History';
-import Planning from '@/components/Main/Planning/Planning';
-import Records from '@/components/Main/Records/Records';
-import Settings from '@/components/Main/Settings/Settings';
+import Overview from '../components/Main/Overview/Overview';
+import History from '../components/Main/History/History';
+import Planning from '../components/Main/Planning/Planning';
+import Records from '../components/Main/Records/Records';
+import Settings from '../components/Main/Settings/Settings';
+import NotFoundComponent from '../components/Other/NotFoundComponent';
 
 Vue.use(Router)
 
 export default new Router({
     mode: 'history',
     routes: [
-        // {
-        //     path: '*',
-        //     component: NotFoundComponent
-        // },
         {
-            path: '/auth',
-            redirect: '/auth/login'
-        }, {
             path: '/auth/login',
             name: 'Login',
             component: Login,
@@ -49,6 +43,9 @@ export default new Router({
                 title: 'Forgot password',
                 layout: 'auth-layout'
             }
+        }, {
+            path: '/auth',
+            redirect: '/auth/login'
         }, {
             path: '/',
             name: 'overview',
@@ -88,6 +85,12 @@ export default new Router({
             component: Settings,
             meta: {
                 layout: 'main-layout'
+            }
+        }, {
+            path: '*',
+            component: NotFoundComponent,
+            meta: {
+                layout: 'empty-layout'
             }
         }
     ]

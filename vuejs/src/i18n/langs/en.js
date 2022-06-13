@@ -5,10 +5,12 @@ export const ENGLISH_TRANSLATIONS = {
         delete: 'Delete',
         edit: 'Edit',
         save: 'Save',
+        notFoundText: 'Oops. Page not found.',
+        buttonNotFoundText: 'Go to Home',
     },
     main: {
         homeBookkeeping: 'Home bookkeeping',
-        bill: 'Account',
+        bill: 'My accounts',
         history: 'History',
         planning: 'Planning',
         recording: 'Recording',
@@ -63,6 +65,7 @@ export const ENGLISH_TRANSLATIONS = {
             income: 'Income',
             outcome: 'Expense'
         },
+        report_from: 'Report from {date} for the period from {dateFrom} to {dateTo}',
         filter: {
             name: 'Expense/income filter',
             warningMoreTimeRange: 'Depending on the number of transactions on your account, the loading time may be increased',
@@ -82,7 +85,12 @@ export const ENGLISH_TRANSLATIONS = {
             currency: 'Currency',
             amount: 'Amount',
             action: 'Action',
-            isDeleteEvent: 'Are you sure you want to delete this transaction?'
+            isDeleteEvent: 'Are you sure you want to delete this transaction?',
+            description: 'Description',
+            all_income: 'General income',
+            all_outcome: 'General expenses',
+            monthly_income: 'Monthly income',
+            monthly_outcome: 'Monthly expenses'
         }
     },
     planning: {
@@ -96,6 +104,7 @@ export const ENGLISH_TRANSLATIONS = {
         selectPlanningDate: 'Choose date',
         selectPlanningEvent: 'Choose event',
         from: 'from',
+        writeInEvent: 'Record in history',
         edit_planning: {
             add_success: 'Record added successfully',
             edit_success: 'Record changed successfully',
@@ -106,6 +115,7 @@ export const ENGLISH_TRANSLATIONS = {
         name: 'Records page',
         event: {
             title: 'Add record',
+            edit_title: 'Edit record',
             add_success: 'Record added successfully',
             edit_success: 'Record changed successfully',
             delete_success: 'Record successfully deleted',
@@ -176,7 +186,8 @@ export const ENGLISH_TRANSLATIONS = {
             statusRequired: 'Status cannot be empty',
             amountRequired: 'The amount cannot be empty',
             amountAboveZero: 'Amount must be greater than zero',
-            amountInsufficient: 'This account had insufficient funds'
+            amountInsufficient: 'This account had insufficient funds',
+            captchaInvalid: 'Captcha is incorrect'
         },
         main_currency_help: 'All transfers made in other currencies will be converted to this currency. This currency is the default in all forms'
     },

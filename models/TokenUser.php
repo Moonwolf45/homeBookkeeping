@@ -19,7 +19,7 @@ class TokenUser extends ActiveRecord {
      * {@inheritdoc}
      */
     public static function tableName(): string {
-        return '{{%tokenUser}}';
+        return '{{%token_user}}';
     }
 
     /**

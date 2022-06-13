@@ -23,6 +23,7 @@ use yii\web\IdentityInterface;
  * @property int $created_at
  * @property int $updated_at
  * @property string $timeZone
+ * @property string $language
  */
 class User extends ActiveRecord implements IdentityInterface {
 
@@ -58,6 +59,7 @@ class User extends ActiveRecord implements IdentityInterface {
             [['email', 'password_hash', 'username'], 'filter', 'filter' => 'trim'],
             [['email'], 'email'],
             [['timeZone'], 'default', 'value' => 'Europe/Moscow'],
+            [['language'], 'default', 'value' => 'ru'],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
         ];
@@ -262,5 +264,14 @@ class User extends ActiveRecord implements IdentityInterface {
         }
 
         return $password;
+    }
+
+    /**
+     * Gets query for [[PlanningEvent]].
+     *
+     * @return ActiveQuery
+     */
+    public function getPlanningEvent(): ActiveQuery {
+        return $this->hasMany(PlanningEvent::class, ['user_id' => 'id']);
     }
 }

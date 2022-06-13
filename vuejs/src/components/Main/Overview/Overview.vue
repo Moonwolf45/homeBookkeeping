@@ -14,12 +14,12 @@
     </div>
 
     <v-row>
-      <v-col class="col-md-6 col-xs-12">
-        <billCard></billCard>
+      <v-col class="col-md-6 col-sm-12 bill-card">
+        <BillCard></BillCard>
       </v-col>
 
-      <v-col class="col-md-6 col-xs-12">
-        <currencyCard></currencyCard>
+      <v-col class="col-md-6 col-sm-12 currency-card">
+        <CurrencyCard></CurrencyCard>
       </v-col>
     </v-row>
   </div>
@@ -42,8 +42,8 @@ export default {
     }
   },
   components: {
-    billCard: BillCard,
-    currencyCard: CurrencyCard
+    BillCard,
+    CurrencyCard
   }
 }
 </script>
@@ -63,5 +63,10 @@ export default {
     margin: 0;
     color: #4f5f6f;
   }
+}
+
+.bill-card,
+.currency-card {
+  margin-bottom: 20px;
 }
 </style>

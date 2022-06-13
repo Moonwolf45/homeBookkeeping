@@ -3,21 +3,10 @@ import { i18n } from '../i18n/i18n';
 import moment from 'moment';
 
 class PlanningEvent {
-  constructor (user_id, category_id, bill_id, currency, type, amount, date, description, status, id = null,
-               event_id = null, locale = null) {
+  constructor (user_id, category_id, bill_id, currency, type, amount, date, description, status, active, id = null,
+               event_id = null) {
 
     this.id = id !== null ? parseInt(id) : null;
-
-    if (locale !== null) {
-      this.name = (parseInt(type) === 1 ? i18n.t('history.chart.income') : i18n.t('history.chart.outcome')) + ' ';
-      this.name += new Intl.NumberFormat(locale, { style: 'decimal', currency: currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
-      this.name += ' ' + i18n.t('planning.from') + ' ' + moment(date, 'YYYY-MM-DD HH:mm').format('DD.MM.YYYY HH:mm')
-    } else {
-      this.name = (parseInt(type) === 1 ? i18n.t('history.chart.income') : i18n.t('history.chart.outcome')) + ' ';
-      this.name += new Intl.NumberFormat('ru-RU', { style: 'decimal', currency: 'RUB', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
-      this.name += ' ' + i18n.t('planning.from') + ' ' + moment(date, 'YYYY-MM-DD HH:mm').format('DD.MM.YYYY HH:mm')
-    }
-
     this.event_id = event_id !== null ? parseInt(event_id) : null;
     this.user_id = parseInt(user_id);
     this.category_id = parseInt(category_id);
@@ -28,6 +17,7 @@ class PlanningEvent {
     this.date = moment(date, 'YYYY-MM-DD HH:mm').format('DD.MM.YYYY HH:mm');
     this.description = description;
     this.status = parseInt(status);
+    this.active = parseInt(active);
   }
 }
 
@@ -58,17 +48,15 @@ export default {
   },
   actions: {
     async getAllPlanningEvents ({ commit, getters }) {
-      commit('clearError')
       commit('setLoadingPlanningEvents', true)
 
       try {
-        const planningEvent = await axios.get(process.env.VUE_APP_URL + '/api/v1/planning-events', {
+        const planningEvent = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/v1/planning-events', {
           params: { user_id: getters.user.id }
         })
 
         const finalPlanningEventsActive = []
         const finalPlanningEventsNoneActive = []
-        const currenciesUser = getters.currenciesUser
 
         if (Object.values(planningEvent.data).length > 0) {
           if (planningEvent.data.activePlanningEvents.length > 0) {
@@ -77,17 +65,11 @@ export default {
 
               if (planningEvent.children.length > 0) {
                 planningEvent.children.forEach((childrenPlanningEvent) => {
-                  let locale = currenciesUser.find((element) => {
-                    if (element.CharCode === childrenPlanningEvent.currency) {
-                      return element.locale
-                    }
-                  });
-                  locale = locale !== undefined ? locale : 'ru-RU'
-
                   childrenActive.push(new PlanningEvent(childrenPlanningEvent.user_id, childrenPlanningEvent.category_id,
                     childrenPlanningEvent.bill_id, childrenPlanningEvent.currency, childrenPlanningEvent.type,
                     childrenPlanningEvent.amount, childrenPlanningEvent.date, childrenPlanningEvent.description,
-                    childrenPlanningEvent.status, childrenPlanningEvent.id, childrenPlanningEvent.event_id, locale));
+                    childrenPlanningEvent.status, childrenPlanningEvent.active, childrenPlanningEvent.id,
+                    childrenPlanningEvent.event_id));
                 });
               }
 
@@ -101,18 +83,11 @@ export default {
 
               if (planningEvent.children.length > 0) {
                 planningEvent.children.forEach((childrenPlanningEvent) => {
-                  let locale = currenciesUser.find((element) => {
-                    if (element.CharCode === childrenPlanningEvent.currency) {
-                      return element.locale
-                    }
-                  });
-                  locale = locale !== undefined ? locale : 'ru-RU'
-
                   childrenNoneActive.push(new PlanningEvent(childrenPlanningEvent.user_id,
                     childrenPlanningEvent.category_id, childrenPlanningEvent.bill_id, childrenPlanningEvent.currency,
                     childrenPlanningEvent.type, childrenPlanningEvent.amount, childrenPlanningEvent.date,
-                    childrenPlanningEvent.description, childrenPlanningEvent.status, childrenPlanningEvent.id,
-                    childrenPlanningEvent.event_id, locale));
+                    childrenPlanningEvent.description, childrenPlanningEvent.status, childrenPlanningEvent.active,
+                    childrenPlanningEvent.id, childrenPlanningEvent.event_id));
                 });
               }
 
@@ -141,7 +116,7 @@ export default {
       commit('setLoadingPlanningEvents', true)
 
       try {
-        const planningEvent = await axios.post(process.env.VUE_APP_URL + '/api/v1/planning-events', payload)
+        const planningEvent = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/v1/planning-events', payload)
 
         if (planningEvent.data.id > 0) {
           commit('setMessage', { status: 'success', message: i18n.t('planning.edit_planning.add_success') })
@@ -165,9 +140,9 @@ export default {
       commit('setLoadingPlanningEvents', true)
 
       try {
-        const planningEvent = await axios.patch(process.env.VUE_APP_URL + '/api/v1/planning-events/' + payload.id, payload)
+        const planningEvent = await axios.patch(process.env.VUE_APP_BACKEND_URL + '/api/v1/planning-events/' + payload.id, payload)
 
-        if (planningEvent.data.id > 0) {
+        if (planningEvent.status === 200) {
           commit('setMessage', { status: 'success', message: i18n.t('planning.edit_planning.edit_success') })
           commit('setLoadingPlanningEvents', false)
 
@@ -189,7 +164,7 @@ export default {
       commit('setLoadingPlanningEvents', true)
 
       try {
-        const planningEvent = await axios.delete(process.env.VUE_APP_URL + '/api/v1/planning-events/' + payload)
+        const planningEvent = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/v1/planning-events/' + payload)
 
         if (planningEvent.status === 204) {
           commit('setMessage', { status: 'success', message: i18n.t('planning.edit_planning.delete_success') })

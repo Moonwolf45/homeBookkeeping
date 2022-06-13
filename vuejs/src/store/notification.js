@@ -9,14 +9,14 @@ export default {
       try {
         if (localStorage.getItem("sentFirebaseMessagingToken") !== payload.token) {
           if (payload.tokenId === null) {
-            await axios.post(process.env.VUE_APP_URL + '/api/v1/notifications', payload).then((response) => {
+            await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/v1/notifications', payload).then((response) => {
               console.log('Successfully saved notification token!')
 
               localStorage.setItem('sentFirebaseMessagingToken', response.data.token ? response.data.token : '');
               localStorage.setItem('sentFirebaseMessagingId', response.data.id ? response.data.id : '');
             })
           } else {
-            await axios.patch(process.env.VUE_APP_URL + '/api/v1/notifications/' + payload.tokenId, payload).then((response) => {
+            await axios.patch(process.env.VUE_APP_BACKEND_URL + '/api/v1/notifications/' + payload.tokenId, payload).then((response) => {
               console.log('Successfully update notification token!')
 
               localStorage.setItem('sentFirebaseMessagingToken', response.data.token ? response.data.token : '');

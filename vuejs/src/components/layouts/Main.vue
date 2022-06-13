@@ -258,6 +258,6 @@ export default {
     transition: left 0.3s ease;
   }
   .container {
-    padding: 55px 80px 100px 20px;
+    padding: 55px 20px 100px 20px;
   }
 </style>

@@ -13,19 +13,20 @@
       <v-card-text>
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-text-field prepend-icon="account_box" :label="$t('form.username')" type="text" v-model="username" outlined />
-          <v-text-field prepend-icon="contact_mail" :label="$t('form.email')" type="email" :rules="emailRules"
-            v-model="email" required outlined />
+          <v-text-field prepend-icon="contact_mail" :label="$t('form.email')" type="email" :rules="emailRules" outlined
+                        required v-model="email" />
 
           <v-select prepend-icon="currency_exchange" required v-model="currenciesValue" :items="currenciesAll" multiple chips
                     :label="$t('form.available_currencies')" dense :item-text="currencyName" item-value="CharCode"
                     :item-disabled="currencyDisable"></v-select>
 
           <v-radio-group prepend-icon="price_change" v-model="currency" row :label="$t('form.main_currency')"
-            :rules="currencyRules" dense>
+                         :rules="currencyRules" dense>
             <v-radio v-for="item in currenciesValue" :key="item" :label="item" on-icon="radio_button_checked"
                      :value="item" off-icon="radio_button_unchecked"></v-radio>
+
+            <span class="text--secondary">{{ $t('form.main_currency_help') }}</span>
           </v-radio-group>
-          <span class="text--secondary">{{ $t('form.main_currency_help') }}</span>
 
           <v-autocomplete prepend-icon="access_time" required v-model="timeZone" :items="arrTimeZone" chips dense
                     :label="$t('form.timZone')" class="mt-4" :filter="filter"></v-autocomplete>
@@ -76,7 +77,6 @@ export default {
       currencyRules: [
         v => !!v || this.$i18n.t('form.errors.currencyRequired')
       ],
-      currenciesValue: [],
       timeZone: this.$store.getters.user?.timeZone || 'Europe/Moscow',
       changePassword: false,
       password: '',
@@ -90,9 +90,6 @@ export default {
       passwordConfirmRules: []
     }
   },
-  mounted () {
-    this.getCurrenciesValue()
-  },
   computed: {
     loading () {
       return this.$store.getters.loadingProfile || this.$store.getters.user === null
@@ -100,6 +97,15 @@ export default {
     },
     currenciesAll () {
       return this.$store.getters.currenciesAll
+    },
+    currenciesValue () {
+      let arrCurrenciesValue = [];
+
+      this.$store.getters.currenciesUser.forEach((currency) => {
+        arrCurrenciesValue.push(currency.CharCode)
+      });
+
+      return arrCurrenciesValue;
     },
     user () {
       return this.$store.getters.user
@@ -158,11 +164,6 @@ export default {
     },
     currencyDisable (item) {
       return item.CharCode === 'RUB'
-    },
-    getCurrenciesValue () {
-      this.$store.getters.currenciesUser?.forEach((currency) => {
-        this.currenciesValue.push(currency.CharCode)
-      })
     },
     filter (item, queryText) {
       return (item.text || '').toLowerCase().indexOf((queryText || '').toLowerCase()) > -1

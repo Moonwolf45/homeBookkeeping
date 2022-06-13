@@ -36,7 +36,7 @@ export default {
       const resultBills = []
 
       try {
-        const profile = await axios.get(process.env.VUE_APP_URL + '/api/v1/profiles/' + payload)
+        const profile = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/v1/profiles/' + payload)
 
         if (profile.data.length !== 0) {
           profile.data.forEach((key) => {
@@ -64,7 +64,7 @@ export default {
       const resultBills = getters.profile
 
       try {
-        const profile = await axios.post(process.env.VUE_APP_URL + '/api/v1/profiles', payload)
+        const profile = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/v1/profiles', payload)
 
         resultBills.push(
           new Profile(profile.data.user_id, profile.data.name, profile.data.balance, profile.data.currency,
@@ -91,7 +91,7 @@ export default {
       const resultBills = getters.profile
 
       try {
-        const editProfile = await axios.patch(process.env.VUE_APP_URL + '/api/v1/profiles/' + payload.id, payload)
+        const editProfile = await axios.patch(process.env.VUE_APP_BACKEND_URL + '/api/v1/profiles/' + payload.id, payload)
 
         resultBills.forEach((element) => {
           if (element.id === editProfile.data.id) {
@@ -127,7 +127,7 @@ export default {
       const resultBills = getters.profile
 
       try {
-        await axios.delete(process.env.VUE_APP_URL + '/api/v1/profiles/' + payload.id)
+        await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/v1/profiles/' + payload.id)
 
         resultBills.filter(item => item.id !== payload.id)
 

@@ -34,7 +34,7 @@ export default {
       const resultCategories = []
 
       try {
-        const categories = await axios.get(process.env.VUE_APP_URL + '/api/v1/categories/' + payload)
+        const categories = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/v1/categories/' + payload)
 
         if (categories.data.length !== 0) {
           categories.data.forEach((key) => {
@@ -72,7 +72,7 @@ export default {
       const resultCategories = getters.category
 
       try {
-        const category = await axios.post(process.env.VUE_APP_URL + '/api/v1/categories', payload)
+        const category = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/v1/categories', payload)
 
         resultCategories.push(
           new Category(category.data.user_id, category.data.title, category.data.color, category.data.id)
@@ -108,7 +108,7 @@ export default {
       const categories = getters.category
 
       try {
-        const editCategory = await axios.patch(process.env.VUE_APP_URL + '/api/v1/categories/' + payload.id, payload)
+        const editCategory = await axios.patch(process.env.VUE_APP_BACKEND_URL + '/api/v1/categories/' + payload.id, payload)
 
         categories.forEach((element) => {
           if (element.id === editCategory.data.id) {

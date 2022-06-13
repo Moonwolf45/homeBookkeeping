@@ -20,7 +20,7 @@
                       min-width="auto">
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field v-model="dateFormatted" :label="$t('form.date')" dense v-bind="attrs" v-on="on"
-                                @blur="date = parseDate(dateFormatted)" readonly outlined />
+                                @blur="date = parseDate(dateFormatted)" outlined />
                 </template>
                 <v-date-picker ref="picker" v-model="date" :min="$moment().add(1, 'd').format('YYYY-MM-DD')"
                                @change="saveDate" :first-day-of-week="this.$root.$i18n.locale === 'ru' ? 1 : 0"
@@ -33,7 +33,7 @@
               <v-menu ref="menu2" v-model="menu2" :close-on-content-click="false" transition="scale-transition" offset-y
                       min-width="auto" :return-value.sync="time">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field v-model="time" :label="$t('form.time')" dense v-bind="attrs" v-on="on" readonly outlined />
+                  <v-text-field v-model="time" :label="$t('form.time')" dense v-bind="attrs" v-on="on" outlined />
                 </template>
                 <v-time-picker format="24hr" v-if="menu2" v-model="time" @click:minute="$refs.menu2.save(time)">
                 </v-time-picker>
@@ -62,7 +62,7 @@
           <v-text-field :label="$t('form.description')" maxlength="255" v-model="description" dense outlined />
 
           <v-select :items="statuses" :label="$t('form.status')" :rules="statusRules" dense outlined
-                    item-text="name" item-value="id" v-model="status" required></v-select>
+                    item-text="name" item-value="id" v-model="active" required></v-select>
         </v-form>
       </v-card-text>
 
@@ -123,7 +123,7 @@ export default {
         v => (v > 0) || this.$i18n.t('form.errors.amountAboveZero')
       ],
       description: null,
-      status: 1,
+      active: 1,
       statuses: [
         { id: 1, name: this.$i18n.t('form.status_on') },
         { id: 0, name: this.$i18n.t('form.status_off') }
@@ -165,7 +165,7 @@ export default {
       this.type = this.event.type
       this.amount = this.event.amount
       this.description = this.event.description
-      this.status = this.event.status
+      this.active = this.event.active
     }
   },
   watch: {
@@ -173,7 +173,7 @@ export default {
       if (this.event !== null) {
         this.id = this.event.id
         this.date = this.parseDate(this.event.date)
-        this.dateFormatted = this.event.date
+        this.dateFormatted = this.$moment(this.event.date, 'DD.MM.YYYY HH:mm').format('DD.MM.YYYY')
         this.time = this.$moment(this.event.date, 'DD.MM.YYYY HH:mm').format('HH:mm')
         this.bill_id = this.event.bill_id
         this.category_id = this.event.category_id
@@ -181,7 +181,7 @@ export default {
         this.type = this.event.type
         this.amount = this.event.amount
         this.description = this.event.description
-        this.status = this.event.status
+        this.active = this.event.active
       } else {
         this.id = null
         this.date = this.$moment().add(1, 'd').format('YYYY-MM-DD')
@@ -193,7 +193,7 @@ export default {
         this.type = 'income'
         this.amount = 0
         this.description = null
-        this.status = 1
+        this.active = 1
       }
     },
     date () {
@@ -239,23 +239,10 @@ export default {
           amount: parseFloat(this.amount),
           date: this.$moment(this.date + ' ' + this.time).format('YYYY-MM-DD HH:mm'),
           description: this.description,
-          status: this.status
+          active: this.active
         }
 
         this.$emit('callCreatePlanningEvent', PlanningEvent);
-        this.$refs.form.reset()
-
-        this.date = this.$moment().format('YYYY-MM-DD')
-        this.dateFormatted = this.saveDate(this.$moment().format('YYYY-MM-DD'))
-        this.time = this.$moment().format('HH:mm')
-
-        this.bill_id = null
-        this.category_id = null
-        this.currency = this.$store.getters.mainCurrency?.CharCode || 'RUB'
-        this.type = 'income'
-        this.amount = 0
-        this.description = null
-        this.status = 1
       }
     },
     onEditSubmit () {
@@ -270,24 +257,10 @@ export default {
           amount: parseFloat(this.amount),
           date: this.$moment(this.date + ' ' + this.time).format('YYYY-MM-DD HH:mm'),
           description: this.description,
-          status: this.status
+          active: this.active
         }
 
         this.$emit('callUpdatePlanningEvent', PlanningEvent);
-        this.$refs.form.reset()
-
-        this.date = this.$moment().format('YYYY-MM-DD')
-        this.dateFormatted = this.saveDate(this.$moment().format('YYYY-MM-DD'))
-        this.time = this.$moment().format('HH:mm')
-
-        this.id = null
-        this.bill_id = null
-        this.category_id = null
-        this.currency = this.$store.getters.mainCurrency?.CharCode || 'RUB'
-        this.type = 'income'
-        this.amount = 0
-        this.description = null
-        this.status = 1
       }
     }
   }

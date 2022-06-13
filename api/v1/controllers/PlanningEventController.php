@@ -30,9 +30,9 @@ class PlanningEventController extends AllApiController {
         $query = PlanningEvent::find()->joinWith('category')->joinWith('bill')->where([PlanningEvent::tableName()
         . '.user_id' => $filter['user_id']]);
 
-        $activePlanningEvents = $query->andWhere([PlanningEvent::tableName() . '.status' => PlanningEvent::STATUS_ON])
+        $activePlanningEvents = $query->andWhere([PlanningEvent::tableName() . '.active' => PlanningEvent::ACTIVE_ON])
             ->orderBy([PlanningEvent::tableName() . '.date' => SORT_ASC])->asArray()->all();
-        $noneActivePlanningEvents = $query->andWhere([PlanningEvent::tableName() . '.status' => PlanningEvent::STATUS_OFF])
+        $noneActivePlanningEvents = $query->andWhere([PlanningEvent::tableName() . '.active' => PlanningEvent::ACTIVE_OFF])
             ->orderBy([PlanningEvent::tableName() . '.date' => SORT_ASC])->asArray()->all();
 
         $arrActivePlanningEvents = [];

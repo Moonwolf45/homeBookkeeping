@@ -65,7 +65,7 @@ class Bill extends ActiveRecord {
     }
 
     /**
-     * Gets query for [[User]].
+     * Gets query for [[Event]].
      *
      * @return ActiveQuery
      */
@@ -74,11 +74,20 @@ class Bill extends ActiveRecord {
     }
 
     /**
-     * Gets query for [[User]].
+     * Gets query for [[CountEvent]].
      *
      * @return ActiveQuery
      */
     public function getCountEvent(): ActiveQuery {
         return $this->hasMany(Event::class, ['bill_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[PlanningEvent]].
+     *
+     * @return ActiveQuery
+     */
+    public function getPlanningEvent(): ActiveQuery {
+        return $this->hasMany(PlanningEvent::class, ['bill_id' => 'id']);
     }
 }

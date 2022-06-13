@@ -10,9 +10,6 @@
                       :counter="6" :rules="passwordRules" v-model="password" outlined
                       @click:append="showPassword = !showPassword" required
                       :append-icon="showPassword ? 'visibility' : 'visibility_off'" />
-
-        <vue-recaptcha ref="recaptcha" :sitekey="process.env.VUE_APP_KEY_SITE" :loadRecaptchaScript="true"
-                       :language="this.$root.$i18n.locale" @verify="verifyRecaptcha" @expired="onCaptchaExpired" />
       </v-form>
     </v-card-text>
     <v-card-actions>
@@ -34,8 +31,6 @@
 </template>
 
 <script>
-import { VueRecaptcha } from 'vue-recaptcha';
-
 export default {
   data () {
     return {
@@ -75,16 +70,7 @@ export default {
           this.$router.push('/')
         }).catch(() => {})
       }
-    },
-    verifyRecaptcha () {
-
-    },
-    onCaptchaExpired () {
-      this.$refs.recaptcha.reset()
     }
-  },
-  components: {
-    VueRecaptcha
   }
 }
 </script>

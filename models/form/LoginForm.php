@@ -10,7 +10,7 @@ class LoginForm extends Model {
     public string $email;
     public string $password;
 
-    private bool $_user = false;
+    private $_user = false;
 
     /**
      * @return array the validation rules.
@@ -65,6 +65,7 @@ class LoginForm extends Model {
         if ($user->validate()) {
             return Yii::$app->user->login($user, 3600 * 24 * 30);
         }
+
         return false;
     }
 

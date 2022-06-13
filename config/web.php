@@ -1,8 +1,13 @@
 <?php
 
 $params = require __DIR__ . '/params.php';
-$db = require __DIR__ . '/db.php';
-$config_api = require '../api/config_api.php';
+
+$db = array_merge(
+    require __DIR__ . '/db.php',
+    require __DIR__ . '/db-local.php'
+);
+
+$config_api = require  dirname(__DIR__) . '/api/config_api.php';
 
 $config = [
     'id' => 'homeBookkeeping_1',
@@ -57,8 +62,30 @@ $config = [
                 'application/json' => 'yii\web\JsonParser'
             ]
         ],
+        'redis' => [
+            'class' => \yii\redis\Connection::class,
+            'hostname' => '127.0.0.1',
+            'port' => 6379
+        ],
+        'queue' => [
+            'class' => \yii\queue\redis\Queue::class,
+            'as log' => \yii\queue\LogBehavior::class,
+            'redis' => 'redis',
+            'channel' => 'queue'
+        ],
+        'session' => [
+            'class' => 'yii\redis\Session',
+        ],
         'cache' => [
-            'class' => 'yii\caching\FileCache',
+            'class' => 'yii\caching\MemCache',
+            'useMemcached' => true,
+            'servers' => [
+                [
+                    'host' => '127.0.0.1',
+                    'port' => 11211,
+                    'weight' => 256
+                ]
+            ]
         ],
         'user' => [
             'identityClass' => 'app\models\User',
@@ -89,6 +116,12 @@ $config = [
                     'levels' => ['error', 'warning', 'info'],
                     'categories' => ['api'],
                     'logFile' => '@runtime/logs/api_' . date('d-m-Y') . '.log',
+                ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'warning', 'info'],
+                    'categories' => ['job'],
+                    'logFile' => '@runtime/logs/jobs_' . date('d-m-Y') . '.log',
                 ],
             ],
         ],
@@ -121,6 +154,7 @@ $config = [
                         'POST forgot-password' => 'forgot-password',
                         'GET currency' => 'currency',
                         'POST user-exists' => 'user-exists',
+                        'PATCH update-language/{id}' => 'update-language',
                         'GET all-currency' => 'all-currency',
                     ]
                 ],

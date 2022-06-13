@@ -22,7 +22,38 @@ return [
             'basePath' => __DIR__ . '/../web/assets',
         ],
         'urlManager' => [
-            'showScriptName' => true,
+            'enablePrettyUrl' => true,
+            'enableStrictParsing' => true,
+            'showScriptName' => false,
+            'rules' => [
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['api/v1/user', 'api/v1/profile', 'api/v1/category',
+                    'api/v1/event', 'api/v1/planning-event', 'api/v1/currency', 'api/v1/notification'],
+                    'patterns' => [
+                        'PUT,PATCH {id}' => 'update',
+                        'DELETE {id}' => 'delete',
+                        'GET,HEAD {id}' => 'view',
+                        'POST' => 'create',
+                        'GET,HEAD' => 'index',
+                        '{id}' => 'options',
+                        '' => 'options',
+                        'OPTIONS <id:\d+>/<action:[\w-]+>' => 'options',
+                        'OPTIONS <action:[\w-]+>' => 'options'
+                    ],
+                    'tokens' => [
+                        '{id}' => '<id:\\w+>',
+                        '{base}' => '<id:\\w+>'
+                    ],
+                    'extraPatterns' => [
+                        'POST registration' => 'registration',
+                        'POST login' => 'login',
+                        'POST forgot-password' => 'forgot-password',
+                        'GET currency' => 'currency',
+                        'POST user-exists' => 'user-exists',
+                        'PATCH update-language/{id}' => 'update-language',
+                        'GET all-currency' => 'all-currency',
+                    ]
+                ],
+            ]
         ],
         'user' => [
             'identityClass' => 'app\models\User',

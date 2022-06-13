@@ -43,7 +43,7 @@ export default {
       commit('setLoading', true)
 
       try {
-        await axios.post(process.env.VUE_APP_URL + '/api/v1/users/registration', payload)
+        await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/v1/users/registration', payload)
         commit('setLoading', false)
       } catch (err) {
         commit('setLoading', false)
@@ -62,7 +62,7 @@ export default {
       commit('setLoading', true)
 
       try {
-        const user = await axios.post(process.env.VUE_APP_URL + '/api/v1/users/login', payload)
+        const user = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/v1/users/login', payload)
         commit('setUser', user.data)
         commit('setAccessToken', user.data.access_token)
         moment.tz.setDefault(user.data.timeZone);
@@ -92,7 +92,7 @@ export default {
       commit('setLoading', true)
 
       try {
-        const user = await axios.post(process.env.VUE_APP_URL + '/api/v1/users/forgot-password', payload)
+        const user = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/v1/users/forgot-password', payload)
         commit('setLoading', false)
 
         return user;
@@ -132,7 +132,7 @@ export default {
       commit('setLoading', true)
 
       try {
-        const user = await axios.post(process.env.VUE_APP_URL + '/api/v1/users/user-exists', payload);
+        const user = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/v1/users/user-exists', payload);
         commit('setLoading', false)
 
         return user;
@@ -160,7 +160,7 @@ export default {
       commit('setLoading', true)
 
       try {
-        const updateUserSettings = await axios.patch(process.env.VUE_APP_URL + '/api/v1/users/' + payload.user_id, payload)
+        const updateUserSettings = await axios.patch(process.env.VUE_APP_BACKEND_URL + '/api/v1/users/' + payload.user_id, payload)
         moment.tz.setDefault(updateUserSettings.data.user.timeZone);
         commit('setUser', updateUserSettings.data.user)
 
@@ -180,6 +180,28 @@ export default {
         throw err
       }
     },
+    async updateUserLanguage ({ commit }, payload) {
+      commit('clearError')
+      commit('setLoading', true)
+
+      try {
+        const updateUserSettings = await axios.patch(process.env.VUE_APP_BACKEND_URL + '/api/v1/users/update-language/' + payload.user_id, payload)
+        commit('setUser', updateUserSettings.data.user)
+
+        commit('setLoading', false)
+        commit('setMessage', { status: 'success', message: i18n.t('settings.form.edit_success') })
+      } catch (err) {
+        commit('setLoading', false)
+
+        if (err.response.data) {
+          commit('setMessage', { status: 'error', message: i18n.t(err.response.data.message) })
+        } else {
+          console.log(err)
+        }
+
+        throw err
+      }
+    }
   },
   getters: {
     user (state) {

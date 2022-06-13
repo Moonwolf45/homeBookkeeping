@@ -5,10 +5,12 @@ export const RUSSIAN_TRANSLATIONS = {
         delete: 'Удалить',
         edit: 'Редактировать',
         save: 'Сохранить',
+        notFoundText: 'Упс. Страница не найдена.',
+        buttonNotFoundText: 'На главную',
     },
     main: {
         homeBookkeeping: 'Домашняя бухгалтерия',
-        bill: 'Счёт',
+        bill: 'Мои счета',
         history: 'История',
         planning: 'Планирование',
         recording: 'Запись',
@@ -63,6 +65,7 @@ export const RUSSIAN_TRANSLATIONS = {
             income: 'Доход',
             outcome: 'Расход'
         },
+        report_from: 'Отчет от {date} за период с {dateFrom} по {dateTo}',
         filter: {
             name: 'Фильтр расходов/доходов',
             warningMoreTimeRange: 'В зависимости от количества операций на счёте, время выгрузки данных может увеличиться',
@@ -82,7 +85,12 @@ export const RUSSIAN_TRANSLATIONS = {
             currency: 'Валюта',
             amount: 'Сумма',
             action: 'Действие',
-            isDeleteEvent: 'Вы действительно хотите удалить данную транзакцию?'
+            isDeleteEvent: 'Вы действительно хотите удалить данную транзакцию?',
+            description: 'Описание',
+            all_income: 'Общие доходы',
+            all_outcome: 'Общие расходы',
+            monthly_income: 'Ежемесячные доходы',
+            monthly_outcome: 'Ежемесячные расходы'
         }
     },
     planning: {
@@ -96,6 +104,7 @@ export const RUSSIAN_TRANSLATIONS = {
         selectPlanningDate: 'Выберите дату',
         selectPlanningEvent: 'Выберите запись',
         from: 'от',
+        writeInEvent: 'Записать в историю',
         edit_planning: {
             add_success: 'Запись успешно добавлена',
             edit_success: 'Запись успешно изменена',
@@ -106,6 +115,7 @@ export const RUSSIAN_TRANSLATIONS = {
         name: 'Страница записей',
         event: {
             title: 'Добавить запись',
+            edit_title: 'Редактировать запись',
             add_success: 'Запись успешно добавлена',
             edit_success: 'Запись успешно изменена',
             delete_success: 'Запись успешно удалена',
@@ -176,7 +186,8 @@ export const RUSSIAN_TRANSLATIONS = {
             statusRequired: 'Статус не может быть пустым',
             amountRequired: 'Сумма не может быть пустой',
             amountAboveZero: 'Сумма должна быть больше нуля',
-            amountInsufficient: 'На счёте недостаточно средств'
+            amountInsufficient: 'На счёте недостаточно средств',
+            captchaInvalid: 'Капча неверна'
         },
         main_currency_help: 'В данную валюту будут преобразовываться все переводы совершённые в других валютах. Данная валюта является валютой по умолчанию во всех формах'
     },

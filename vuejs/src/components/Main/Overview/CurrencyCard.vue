@@ -7,6 +7,8 @@
         <v-card-title>
           <h4 class="title">{{ $t('overview.exchangeRates') }}</h4>
         </v-card-title>
+
+        <div class="card-content">
           <v-simple-table>
             <thead>
               <tr>
@@ -31,6 +33,7 @@
               </tr>
             </tbody>
           </v-simple-table>
+        </div>
       </v-card-text>
     </v-card>
   </div>
@@ -59,7 +62,6 @@ export default {
   methods: {
     getCurrencyFormat (code) {
       let currencyArr = Object.values(this.currencies?.Valute);
-
       let currency = currencyArr.find(item => item.CharCode === code)
 
       if (this.mainCurrency?.CharCode === 'RUB') {
@@ -82,6 +84,10 @@ export default {
     line-height: 1.1;
     font-weight: 600;
   }
+}
+.card-content {
+  max-height: 500px;
+  overflow-y: auto;
 }
 .v-data-table > .v-data-table__wrapper > table > thead > tr > th {
   padding: 0.75rem;

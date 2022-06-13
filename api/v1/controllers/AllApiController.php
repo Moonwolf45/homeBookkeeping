@@ -40,7 +40,7 @@ class AllApiController extends ActiveController {
             $behaviors['corsFilter'] = [
                 'class' => Cors::class,
                 'cors'  => [
-                    'Origin' => [Yii::$app->params['domain_dev']],
+                    'Origin' => [Yii::$app->params['domain_dev'], Yii::$app->params['domain_prod']],
                     'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
                     'Access-Control-Request-Headers' => ['*'],
                     'Access-Control-Allow-Credentials' => true,

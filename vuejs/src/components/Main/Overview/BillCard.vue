@@ -17,52 +17,54 @@
           </div>
         </v-card-title>
 
-        <v-list-item two-line v-for="bill in profile" :key="bill.id">
-          <v-list-item-content>
-            <v-list-item-title class="table-bill">
-              <div class="stat">{{ bill.name }}</div>
+        <div class="card-content">
+          <v-list-item two-line v-for="bill in profile" :key="bill.id">
+            <v-list-item-content>
+              <v-list-item-title class="table-bill">
+                <div class="stat">{{ bill.name }}</div>
 
-              <div class="currency-content">
-                <div class="stat-icon" v-html="$getSymbolCurrency(bill.currency)"></div>
-                <div class="stat-value">
-                  <div class="value">{{ new Intl.NumberFormat(currenciesUser.filter((cur) => {
-                    cur.CharCode === bill.currency }).locale, { style: 'decimal', currency: bill.currency,
-                    minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bill.balance) }}
-                  </div>
-                </div>
-                <div v-if="bill.currency !== currencyDefault" class="two-currency"> ~
-                  <div class="stat-icon" v-html="$getSymbolCurrency(currencyDefault)"></div>
+                <div class="currency-content">
+                  <div class="stat-icon" v-html="$getSymbolCurrency(bill.currency)"></div>
                   <div class="stat-value">
-                    <div class="value"> {{ new Intl.NumberFormat(currentLocale, { style: 'decimal',
-                      currency: currencyDefault, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
-                        $getCurrencyBalance(currencies, bill.balance, bill.currency, currencyDefault)) }}
+                    <div class="value">{{ new Intl.NumberFormat(currenciesUser.filter((cur) => {
+                      cur.CharCode === bill.currency }).locale, { style: 'decimal', currency: bill.currency,
+                      minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bill.balance) }}
+                    </div>
+                  </div>
+                  <div v-if="bill.currency !== currencyDefault" class="two-currency"> ~
+                    <div class="stat-icon" v-html="$getSymbolCurrency(currencyDefault)"></div>
+                    <div class="stat-value">
+                      <div class="value"> {{ new Intl.NumberFormat(currentLocale, { style: 'decimal',
+                        currency: currencyDefault, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+                          $getCurrencyBalance(currencies, bill.balance, bill.currency, currencyDefault)) }}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div class="action_button">
-                <v-btn dark color="teal" @click="onEditBill(bill.id)">
-                  <v-icon dark>
-                    edit
-                  </v-icon>
-                </v-btn>
-                <v-btn dark color="teal" @click="onDeleteBill(bill.id)">
-                  <v-icon dark>
-                    delete
-                  </v-icon>
-                </v-btn>
-              </div>
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              <v-progress-linear value="100" color="#008000" height="2"></v-progress-linear>
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
+                <div class="action_button">
+                  <v-btn dark small color="teal" @click="onEditBill(bill.id)">
+                    <v-icon dark>
+                      edit
+                    </v-icon>
+                  </v-btn>
+                  <v-btn dark small color="teal" @click="onDeleteBill(bill.id)">
+                    <v-icon dark>
+                      delete
+                    </v-icon>
+                  </v-btn>
+                </div>
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                <v-progress-linear value="100" color="#008000" height="2"></v-progress-linear>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </div>
       </v-card-text>
     </v-card>
 
-    <modalWindow :dialog="openModal">
+    <ModalWindow :dialog="openModal">
       <v-card-title>
         <span class="text-h5">{{ $t('overview.createAnInvoice') }}</span>
       </v-card-title>
@@ -91,7 +93,7 @@
           {{ editModal ? $t('overview.edit') : $t('overview.create') }}
         </v-btn>
       </v-card-actions>
-    </modalWindow>
+    </ModalWindow>
   </div>
 </template>
 
@@ -112,7 +114,7 @@ export default {
       amount: 0,
       amountRules: [
         v => (v !== '' && v !== null) || this.$i18n.t('form.errors.amountRequired'),
-        v => (v >= 0) || this.$i18n.t('form.errors.amountAboveZero'),
+        v => (v >= 0) || this.$i18n.t('form.errors.amountAboveZero')
       ],
       valid: false
     }
@@ -159,7 +161,7 @@ export default {
         const profile = this.$store.getters.profileById(id);
 
         this.$store.dispatch('deleteProfile', { id: profile.id, name: profile.name }).then(() => {})
-            .catch(() => {})
+          .catch(() => {})
       }
     },
     closeModal () {
@@ -167,6 +169,7 @@ export default {
       this.editModal = false;
 
       this.$refs.form.reset();
+      this.bill_id = null;
       this.name = null;
       this.currency = this.$store.getters.mainCurrency?.CharCode || 'RUB'
       this.amount = 0;
@@ -193,7 +196,7 @@ export default {
     }
   },
   components: {
-    modalWindow: ModalWindow
+    ModalWindow
   }
 }
 </script>
@@ -207,6 +210,10 @@ export default {
     font-weight: 600;
   }
 }
+.card-content {
+  max-height: 500px;
+  overflow-y: auto;
+}
 .table-bill {
   display: flex;
   align-items: center;
@@ -216,21 +223,23 @@ export default {
   display: flex;
 }
 .stat-icon {
-  color: #52bcd3;
   display: inline-block;
+  width: 20px;
+  margin-right: 5px;
   font-size: 26px;
   font-weight: 700;
   text-align: center;
   vertical-align: middle;
-  width: 50px;
+  color: #52bcd3;
 }
 .stat {
+  display: inline-block;
+  min-width: 100px;
   width: 35%;
+  margin-right: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: inline-block;
-  margin-right: 10px;
   vertical-align: middle;
 
   .value {
@@ -240,13 +249,15 @@ export default {
     color: #4f5f6f;
   }
 }
+.stat-value {
+  margin-right: 10px;
+}
 .stat-value,
 .action_button {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: inline-block;
-  margin-right: 10px;
   vertical-align: middle;
 
   font-size: 25px;
@@ -257,20 +268,55 @@ export default {
   .v-btn {
     margin: 0 5px 0 0;
   }
+
+  .v-btn:last-child {
+    margin: 0;
+  }
+}
+.action_button {
+  overflow: unset;
 }
 .two-currency {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-right: 10px;
 
   .stat-icon {
-    width: 25px;
+    width: 10px;
+    margin-left: 10px;
+    margin-right: 0;
     font-size: 15px;
     color: rgba(0, 0, 0, .6);
   }
   .stat-value {
     font-size: 15px;
     line-height: inherit;
+    margin-right: 0;
   }
+}
+
+@media screen and (max-width: 1599px) {
+  .v-btn:not(.v-btn--round).v-size--small {
+    min-width: 40px;
+    padding: 0 5px;
+  }
+}
+
+@media screen and (max-width: 1439px) {
+  .currency-content {
+    flex-wrap: wrap;
+  }
+  .stat-value {
+    font-size: 15px;
+  }
+}
+@media screen and (max-width: 1023px) {
+  .table-bill {
+    flex-wrap: wrap;
+  }
+}
+@media screen and (max-width: 424px) {
+
 }
 </style>

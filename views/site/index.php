@@ -4,10 +4,8 @@
 
 
 use app\assets\AppAsset;
-use app\assets\VueAsset;
 
 AppAsset::register($this);
-VueAsset::register($this);
 ?>
 
 <div id="app">
